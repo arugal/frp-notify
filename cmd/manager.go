@@ -11,6 +11,7 @@ import (
 	"github/arugal/frp-manager/models"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 var resp = models.Response{
@@ -48,6 +49,35 @@ func gotify(title string, message string) {
 	if err != nil {
 		log.Errorf("gotify error, err:%s address:%s, token:%s", err, config.GotifyAddress, config.GotifyToken)
 	}
+}
+
+func ipQuery(ip string) string {
+	client := resty.New()
+
+	request := client.R()
+	request.Header.Add("Content-Type", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.75 Safari/537.36")
+
+	resp, err := request.Get(fmt.Sprintf("http://ip.ws.126.net/ipquery?ip=%s", ip))
+	if err != nil {
+		log.Errorf("ip query error, err: %v", err)
+		return ""
+	}
+	result := models.ConvertToString(string(resp.Body()), "GBK", "UTF-8")
+	return provinceAndCity(result)
+}
+
+func provinceAndCity(result string) string {
+	i := strings.Index(result, "city:\"") + 6
+	result = result[i:]
+	i = strings.Index(result, "\"")
+	city := result[:i]
+
+	i = strings.Index(result, "province:\"") + 10
+	result = result[i:]
+	i = strings.Index(result, "\"")
+	province := result[:i]
+
+	return province + city
 }
 
 func normal(ctx *gin.Context) {
@@ -99,8 +129,10 @@ func main() {
 						content["proxy_name"], content["proxy_type"], content["remote_port"]))
 				break
 			case models.OpNewAccessIp:
+				userRemoteIp := fmt.Sprint(content["user_remote_ip"])
+				provinceAndCity := ipQuery(userRemoteIp)
 				gotify(models.OpNewAccessIp+" - "+fmt.Sprint(content["proxy_name"]),
-					fmt.Sprintf("RemotIp: %v", content["user_remote_ip"]))
+					fmt.Sprintf("RemotIp: %s - %s", userRemoteIp, provinceAndCity))
 			}
 		}
 	}()
