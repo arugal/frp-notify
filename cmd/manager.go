@@ -95,7 +95,8 @@ func main() {
 				break
 			case models.OpNewProxy:
 				gotify(models.OpNewProxy+" - "+fmt.Sprint(content["proxy_name"]),
-					fmt.Sprintf("ProxyName: %v, ProxyType: %v, RemotePort: %v", content["proxy_name"], content["proxy_type"], content["remote_port"]))
+					fmt.Sprintf("ProxyName: %v, ProxyType: %v, RemotePort: %v",
+						content["proxy_name"], content["proxy_type"], content["remote_port"]))
 				break
 			case models.OpNewAccessIp:
 				gotify(models.OpNewAccessIp+" - "+fmt.Sprint(content["proxy_name"]),

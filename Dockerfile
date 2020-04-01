@@ -6,7 +6,7 @@ ENV GO111MODULE=on
 RUN mkdir /frp-manager
 ADD . /frp-manager
 WORKDIR /frp-manager
-RUN go build -o /bin/manager ./cmd
+RUN go build -o ./bin/manager ./cmd
 
 FROM alpine:3.10
 
