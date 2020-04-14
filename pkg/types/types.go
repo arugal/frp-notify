@@ -12,20 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package types
 
-import (
-	"flag"
+const (
+	APIVersion = "0.1.0"
+
+	OpLogin       = "Login"
+	OpNewProxy    = "NewProxy"
+	OpPing        = "Ping"
+	OpNewWorkConn = "NewWorkConn"
+	OpNewUserConn = "NewUserConn"
 )
 
-type Config struct {
-	Addr          string
-	GotifyAddress string
-	GotifyToken   string
+type Request struct {
+	Version string      `json:"version"`
+	Op      string      `json:"op"`
+	Content interface{} `json:"content"`
 }
 
-func (c *Config) addFlags() {
-	flag.StringVar(&c.Addr, "addr", c.Addr, "server address")
-	flag.StringVar(&c.GotifyAddress, "gotify-addr", c.GotifyAddress, "gotify address")
-	flag.StringVar(&c.GotifyToken, "gotify-token", c.GotifyToken, "gotify token")
+type Response struct {
+	Reject       bool        `json:"reject"`
+	RejectReason string      `json:"reject_reason"`
+	Unchange     bool        `json:"unchange"`
+	Content      interface{} `json:"content"`
 }

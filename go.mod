@@ -1,4 +1,4 @@
-module github/arugal/frp-manager
+module github/arugal/frp-notify
 
 go 1.13
 

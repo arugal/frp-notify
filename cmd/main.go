@@ -1,17 +1,31 @@
+// Copyright 2020 arugal, zhangwei24@apache.org
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package main
 
 import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github/arugal/frp-notify/logger"
+	"github/arugal/frp-notify/models"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
-	"github/arugal/frp-manager/logger"
-	"github/arugal/frp-manager/models"
-	"io/ioutil"
-	"net/http"
-	"strings"
 )
 
 var resp = models.Response{
@@ -49,35 +63,6 @@ func gotify(title string, message string) {
 	if err != nil {
 		log.Errorf("gotify error, err:%s address:%s, token:%s", err, config.GotifyAddress, config.GotifyToken)
 	}
-}
-
-func ipQuery(ip string) string {
-	client := resty.New()
-
-	request := client.R()
-	request.Header.Add("Content-Type", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.75 Safari/537.36")
-
-	resp, err := request.Get(fmt.Sprintf("http://ip.ws.126.net/ipquery?ip=%s", ip))
-	if err != nil {
-		log.Errorf("ip query error, err: %v", err)
-		return ""
-	}
-	result := models.ConvertToString(string(resp.Body()), "GBK", "UTF-8")
-	return provinceAndCity(result)
-}
-
-func provinceAndCity(result string) string {
-	i := strings.Index(result, "city:\"") + 6
-	result = result[i:]
-	i = strings.Index(result, "\"")
-	city := result[:i]
-
-	i = strings.Index(result, "province:\"") + 10
-	result = result[i:]
-	i = strings.Index(result, "\"")
-	province := result[:i]
-
-	return province + city
 }
 
 func normal(ctx *gin.Context) {
@@ -130,9 +115,8 @@ func main() {
 				break
 			case models.OpNewAccessIp:
 				userRemoteIp := fmt.Sprint(content["user_remote_ip"])
-				provinceAndCity := ipQuery(userRemoteIp)
 				gotify(models.OpNewAccessIp+" - "+fmt.Sprint(content["proxy_name"]),
-					fmt.Sprintf("RemotIp: %s - %s", userRemoteIp, provinceAndCity))
+					fmt.Sprintf("RemotIp: %s", userRemoteIp))
 			}
 		}
 	}()
