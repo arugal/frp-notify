@@ -15,114 +15,123 @@
 package main
 
 import (
-	"encoding/json"
-	"flag"
-	"fmt"
-	"github/arugal/frp-notify/logger"
-	"github/arugal/frp-notify/models"
-	"io/ioutil"
-	"net/http"
+	"github/arugal/frp-notify/pkg/cli/interceptor"
+	"github/arugal/frp-notify/pkg/config"
+	"github/arugal/frp-notify/pkg/logger"
+	"github/arugal/frp-notify/pkg/notify"
+	_ "github/arugal/frp-notify/pkg/notify/gotify"
+	_ "github/arugal/frp-notify/pkg/notify/log"
+	"github/arugal/frp-notify/pkg/server"
+	"os"
+	"strconv"
+	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli"
+	"github.com/urfave/cli/altsrc"
 )
 
-var resp = models.Response{
-	Reject:       false,
-	RejectReason: "",
-	Unchange:     true,
-	Content:      nil,
-}
+var (
+	log      *logrus.Logger
+	cmdStart = cli.Command{
+		Name:  "start",
+		Usage: "start frp notify",
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:     "config, c",
+				Usage:    "load notify plugin configuration from `FILE`",
+				Required: false,
+				EnvVar:   "FRP_NOTIFY_PLUGIN_CONF",
+				Value:    "notify-plugin.json",
+			},
+			cli.StringFlag{
+				Name:     "bind-address, b",
+				Usage:    "manager server listen `ADDRESS`",
+				Required: false,
+				EnvVar:   "FRP_NOTIFY_MANAGER_ADDRESS",
+				Value:    ":80",
+			},
+			cli.Int64Flag{
+				Name:     "window-interval",
+				Usage:    "user conn cache time window interval (unit: MINUTE)",
+				Required: false,
+				EnvVar:   "FRP_NOTIFY_WINDOW_INTERVAL",
+				Value:    60,
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			configPath := ctx.String("config")
+			bindAddress := ctx.String("bind-address")
+			windowInterval := ctx.Int64("window-interval")
 
-var handlerChan = make(chan models.Request, 10)
+			cfg := config.Load(configPath)
 
-var config = Config{
-	Addr: ":80",
-}
-var log *logrus.Logger
+			// init notify
+			for _, notifyCfg := range cfg.NotifyPlugins {
+				err := notify.InitNotify(notifyCfg)
+				if err != nil {
+					log.Fatalf("init notify [%s] failed %s", notifyCfg.Name, err.Error())
+				}
+			}
+
+			ms := server.NewManagerServer(server.WithServerAddr(bindAddress),
+				server.WithWindowInterval(time.Duration(windowInterval)*time.Minute))
+
+			ms.Start()
+			return nil
+		},
+	}
+)
 
 func init() {
 	log = logger.Log
 }
 
-func gotify(title string, message string) {
-	if config.GotifyAddress == "" || config.GotifyToken == "" {
-		return
-	}
-
-	client := resty.New()
-
-	format := make(map[string]string)
-	format["title"] = title
-	format["message"] = message
-
-	_, err := client.R().
-		SetFormData(format).
-		Post(fmt.Sprintf("http://%s/message?token=%s", config.GotifyAddress, config.GotifyToken))
-	if err != nil {
-		log.Errorf("gotify error, err:%s address:%s, token:%s", err, config.GotifyAddress, config.GotifyToken)
-	}
-}
-
-func normal(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, resp)
-}
-
 func main() {
-	config.addFlags()
-	flag.Parse()
+	app := cli.NewApp()
+	app.Name = "frp-notify"
+	app.Usage = "https://github.com/arugal/frp-notify"
+	app.Compiled = time.Now()
+	app.Copyright = "(c) " + strconv.Itoa(time.Now().Year()) + " arugal"
+	app.Description = "frp server manager plugin implement, focus on notify."
 
-	r := gin.Default()
+	flags := []cli.Flag{
+		altsrc.NewStringFlag(cli.StringFlag{
+			Name:     "log-level",
+			Required: false,
+			Usage:    "set log level, support: panic，fatal, error, warn, info, debug, trace",
+			EnvVar:   "FRP_NOTIFY_LOG_LEVEL",
+			Value:    "info",
+		}),
+	}
 
-	r.POST("/handler", func(ctx *gin.Context) {
-		body, err := ioutil.ReadAll(ctx.Request.Body)
-		defer normal(ctx)
-		if err != nil {
-			log.Errorf("read body error, err: %v", err)
-			return
-		}
-		requst := models.Request{}
-		err = json.Unmarshal(body, &requst)
-		if err != nil {
-			log.Errorf("json unmarshal error, err: %v", err)
-			return
-		}
-		handlerChan <- requst
+	app.Flags = flags
+
+	app.Commands = []cli.Command{
+		cmdStart,
+	}
+
+	app.Before = interceptor.BeforeChain([]cli.BeforeFunc{
+		setUpCommandLineContext,
 	})
 
-	go func() {
-		for requst := range handlerChan {
-			if requst.Version != models.APIVersion {
-				log.Errorf("Unsupported api version %s", requst.Version)
-				return
-			}
-			log.Infof("%s - %v", requst.Op, requst.Content)
-			content, ok := requst.Content.(map[string]interface{})
-			if !ok {
-				log.Errorf("Unsupported content %v", requst.Content)
-				return
-			}
-			switch requst.Op {
-			case models.OpLogin:
-				gotify(models.OpLogin, fmt.Sprintf("Version: %v, HostName: %v, Os: %v, Arch: %v",
-					content["version"], content["hostname"], content["os"], content["arch"]))
-				break
-			case models.OpNewProxy:
-				gotify(models.OpNewProxy+" - "+fmt.Sprint(content["proxy_name"]),
-					fmt.Sprintf("ProxyName: %v, ProxyType: %v, RemotePort: %v",
-						content["proxy_name"], content["proxy_type"], content["remote_port"]))
-				break
-			case models.OpNewAccessIp:
-				userRemoteIp := fmt.Sprint(content["user_remote_ip"])
-				gotify(models.OpNewAccessIp+" - "+fmt.Sprint(content["proxy_name"]),
-					fmt.Sprintf("RemotIp: %s", userRemoteIp))
-			}
+	app.Action = func(c *cli.Context) error {
+		err := cli.ShowAppHelp(c)
+		if err != nil {
+			return err
 		}
-	}()
-
-	err := r.Run(config.Addr)
-	if err != nil {
-		panic(err)
+		c.App.Setup()
+		return nil
 	}
+
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func setUpCommandLineContext(c *cli.Context) error {
+	level := c.GlobalString("log-level")
+	logger.SetLogLevel(level)
+	return nil
 }

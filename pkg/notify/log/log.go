@@ -12,27 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package types
+package log
 
-const (
-	APIVersion = "0.1.0"
+import (
+	"github/arugal/frp-notify/pkg/logger"
+	"github/arugal/frp-notify/pkg/notify"
 
-	OpLogin       = "Login"
-	OpNewProxy    = "NewProxy"
-	OpPing        = "Ping"
-	OpNewWorkConn = "NewWorkConn"
-	OpNewUserConn = "NewUserConn"
+	"github.com/sirupsen/logrus"
 )
 
-type Request struct {
-	Version string      `json:"version"`
-	Op      string      `json:"op"`
-	Content interface{} `json:"content"`
+var (
+	log *logrus.Logger
+)
+
+func init() {
+	log = logger.Log
+
+	notify.RegisterNotify("log", logNotifyBuilder)
 }
 
-type Response struct {
-	Content      interface{} `json:"content"`
-	RejectReason string      `json:"reject_reason"`
-	Reject       bool        `json:"reject"`
-	Unchange     bool        `json:"unchange"`
+type logNotify struct {
+}
+
+func (l *logNotify) SendMessage(title string, message string) {
+	log.Infof("title: %s, message: %s \n", title, message)
+}
+
+func logNotifyBuilder(config map[string]interface{}) (notify.Notify, error) {
+	return &logNotify{}, nil
 }

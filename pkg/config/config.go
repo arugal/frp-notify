@@ -12,27 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package types
+package config
 
-const (
-	APIVersion = "0.1.0"
-
-	OpLogin       = "Login"
-	OpNewProxy    = "NewProxy"
-	OpPing        = "Ping"
-	OpNewWorkConn = "NewWorkConn"
-	OpNewUserConn = "NewUserConn"
-)
-
-type Request struct {
-	Version string      `json:"version"`
-	Op      string      `json:"op"`
-	Content interface{} `json:"content"`
-}
-
-type Response struct {
-	Content      interface{} `json:"content"`
-	RejectReason string      `json:"reject_reason"`
-	Reject       bool        `json:"reject"`
-	Unchange     bool        `json:"unchange"`
+type FRPNotifyConfig struct {
+	NotifyPlugins []NotifyConfig `json:"notify_plugins"`
 }

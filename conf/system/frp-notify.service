@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.13 AS builder
+[Unit]
+Description=Frp notify service
+After=network.target
 
-ENV CGO_ENABLED=0
-ENV GO111MODULE=on
+[Service]
+Type=simple
+User=nobody
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/bin/frp-notify start -c /etc/frp-notify/notify-plugin.json
 
-ADD . /frp-notify
-WORKDIR /frp-notify
-RUN make dep && make build
-
-FROM alpine:3.10
-
-COPY --from=builder /frp-notify/bin/frp-notify .
-ENTRYPOINT ["/frp-notify"]
+[Install]
+WantedBy=multi-user.target

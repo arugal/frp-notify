@@ -32,3 +32,22 @@ func init() {
 		DisableLevelTruncation: true,
 	})
 }
+
+func SetLogLevel(level string) {
+	switch level {
+	case "panic":
+		Log.SetLevel(logrus.PanicLevel)
+	case "fatal":
+		Log.SetLevel(logrus.FatalLevel)
+	case "error":
+		Log.SetLevel(logrus.ErrorLevel)
+	case "warn":
+		Log.SetLevel(logrus.WarnLevel)
+	case "info":
+		Log.SetLevel(logrus.InfoLevel)
+	case "debug":
+		Log.SetLevel(logrus.DebugLevel)
+	case "trace":
+		Log.SetLevel(logrus.DebugLevel)
+	}
+}

@@ -14,6 +14,8 @@
 
 package notify
 
+type PluginBuilder func(config map[string]interface{}) (Notify, error)
+
 type Notify interface {
-	newMessage()
+	SendMessage(title string, message string)
 }

@@ -12,27 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package types
+package config
 
-const (
-	APIVersion = "0.1.0"
-
-	OpLogin       = "Login"
-	OpNewProxy    = "NewProxy"
-	OpPing        = "Ping"
-	OpNewWorkConn = "NewWorkConn"
-	OpNewUserConn = "NewUserConn"
-)
-
-type Request struct {
-	Version string      `json:"version"`
-	Op      string      `json:"op"`
-	Content interface{} `json:"content"`
+// NotifyConfig notify configuration
+type NotifyConfig struct {
+	Name   string                 `json:"name"`
+	Config map[string]interface{} `json:"config,omitempty"`
 }
 
-type Response struct {
-	Content      interface{} `json:"content"`
-	RejectReason string      `json:"reject_reason"`
-	Reject       bool        `json:"reject"`
-	Unchange     bool        `json:"unchange"`
+// GotifyConfig gotify configuration
+type GotifyConfig struct {
+	ServerAddr string `json:"server_addr"`
+	AppToken   string `json:"app_token"`
 }

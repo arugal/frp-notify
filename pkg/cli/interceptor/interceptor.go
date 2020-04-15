@@ -12,20 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package interceptor
 
-import (
-	"flag"
-)
+import "github.com/urfave/cli"
 
-type Config struct {
-	Addr          string
-	GotifyAddress string
-	GotifyToken   string
-}
-
-func (c *Config) addFlags() {
-	flag.StringVar(&c.Addr, "addr", c.Addr, "server address")
-	flag.StringVar(&c.GotifyAddress, "gotify-addr", c.GotifyAddress, "gotify address")
-	flag.StringVar(&c.GotifyToken, "gotify-token", c.GotifyToken, "gotify token")
+// BeforeChain is a convenient function to chain up multiple cli.BeforeFunc
+func BeforeChain(beforeFunctions []cli.BeforeFunc) cli.BeforeFunc {
+	return func(ctx *cli.Context) error {
+		for _, beforeFunc := range beforeFunctions {
+			if err := beforeFunc(ctx); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 }

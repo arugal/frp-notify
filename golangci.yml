@@ -12,16 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.13 AS builder
-
-ENV CGO_ENABLED=0
-ENV GO111MODULE=on
-
-ADD . /frp-notify
-WORKDIR /frp-notify
-RUN make dep && make build
-
-FROM alpine:3.10
-
-COPY --from=builder /frp-notify/bin/frp-notify .
-ENTRYPOINT ["/frp-notify"]
+linters:
+  enable:
+    - deadcode
+    - errcheck
+    - goconst
+    - golint
+    - ineffassign
+    - lll
+    - maligned
+    - misspell
+    - structcheck
+    - unconvert
+    - varcheck
+    - govet
+    - goimports
+    - prealloc
+    - unused
+    - staticcheck
+    - gosimple
+    - megacheck
+  disable:
+    - interfacer
+linters-settings:
+  lll:
+    line-length: 160
+  goconst:
+    min-occurrences: 4
+  govet:
+    check-shadowing: true
