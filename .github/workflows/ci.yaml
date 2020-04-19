@@ -12,16 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.13 AS builder
+name: Build
 
-ENV CGO_ENABLED=0
-ENV GO111MODULE=on
+on:
+  pull_request:
+  push:
+    branches:
+      - master
 
-ADD . /frp-notify
-WORKDIR /frp-notify
-RUN make dep && make build
-
-FROM alpine:3.10
-
-COPY --from=builder /frp-notify/bin/frp-notify .
-ENTRYPOINT ["/frp-notify"]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.13
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13
+        id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+      - name: Get dependencies
+        run: make deps
+      - name: Lint
+        run: make lint
+      - name: Build
+        run: make build
