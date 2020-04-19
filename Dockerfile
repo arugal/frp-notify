@@ -19,7 +19,7 @@ ENV GO111MODULE=on
 
 ADD . /frp-notify
 WORKDIR /frp-notify
-RUN make dep && make build
+RUN make deps && make build
 
 FROM alpine:3.10
 

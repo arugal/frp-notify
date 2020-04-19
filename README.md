@@ -62,7 +62,7 @@ ops = Login,NewProxy,NewWorkConn,NewUserConn    // 通知的操作
     {
       "name": "gotify",                         // 固定配置
       "config": {
-        "server_addr": "127.0.0.1:4000",        // gotify-server 服务地址
+        "server_addr": "127.0.0.1:80",        // gotify-server 服务地址
         "app_token": "token"                    // gotify-server 配置的 app token
       }
     }
