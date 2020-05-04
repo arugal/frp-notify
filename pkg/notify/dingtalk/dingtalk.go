@@ -41,7 +41,7 @@ type dingTalkNotify struct {
 }
 
 func (d *dingTalkNotify) SendMessage(title string, message string) {
-	err := d.dingTalk.SendMarkdownMessage("dingTalk", fmt.Sprintf("### %s \n\n %s", title, message), []string{}, d.cfg.IsAtAll)
+	err := d.dingTalk.SendMarkdownMessage(title, fmt.Sprintf("### %s \n\n %s", title, message), []string{}, d.cfg.IsAtAll)
 	if err != nil {
 		log.Errorf("send message to dingTalk error, err: %s", err)
 	}

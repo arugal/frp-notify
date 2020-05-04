@@ -66,7 +66,7 @@ ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
       "config": {
         "token": "df54651465c1189b76fd13f910b76bed361f8fff31bf9118b1896bc148500000",                          // dingTalk 自定义机器人 token
         "secret": "SEC97d8a209f9ddda25b89d63d82a0b2ad4065504cbe4bc043719fbb1a0000000",                        // dingTalk 自定义机器人 secret
-        "is_at_all": "false"                                                                                  // 发送消息时是否@所有人
+        "is_at_all": true                                                                                     // 发送消息时是否@所有人
       }
     }
   ]

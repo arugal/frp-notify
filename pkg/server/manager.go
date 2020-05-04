@@ -17,6 +17,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"github/arugal/frp-notify/pkg/ip"
 	"github/arugal/frp-notify/pkg/logger"
 	"github/arugal/frp-notify/pkg/notify"
 	"github/arugal/frp-notify/pkg/types"
@@ -52,6 +53,7 @@ type ManagerServer struct {
 	serverAddr     string
 	windowInterval time.Duration
 	requestChan    chan *types.Request
+	addressService ip.AddressService
 }
 
 func NewManagerServer(opts ...ManagerServerOption) *ManagerServer {
@@ -78,6 +80,12 @@ func WithWindowInterval(windowInterval time.Duration) ManagerServerOption {
 func WithServerAddr(serverAddr string) ManagerServerOption {
 	return func(m *ManagerServer) {
 		m.serverAddr = serverAddr
+	}
+}
+
+func WithIpAddressService(service ip.AddressService) ManagerServerOption {
+	return func(m *ManagerServer) {
+		m.addressService = service
 	}
 }
 
@@ -173,7 +181,15 @@ func (m *ManagerServer) doNotify() {
 					break
 				}
 				ipCache[remoteIP] = false
-				message = fmt.Sprintf("ProxyName: %s, ProxyType: %v, RemoteIP: %s", proxyName, content["proxy_type"], remoteIP)
+				var ipCName string
+				if m.addressService != nil {
+					ipCName = m.addressService.Query(remoteIP)
+				}
+				if ipCName != "" {
+					message = fmt.Sprintf("ProxyName: %s, ProxyType: %v, RemoteIP: %s, CName: %s", proxyName, content["proxy_type"], remoteIP, ipCName)
+				} else {
+					message = fmt.Sprintf("ProxyName: %s, ProxyType: %v, RemoteIP: %s", proxyName, content["proxy_type"], remoteIP)
+				}
 			}
 			if !skipNotify {
 				notify.SendMessage(title, message)
