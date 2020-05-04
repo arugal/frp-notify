@@ -87,7 +87,7 @@ var (
 
 			if enable {
 				// 启动 ip 地址所属地查询
-				op := server.WithIpAddressService(ip.NewDefaultAddressService())
+				op := server.WithIPAddressService(ip.NewDefaultAddressService())
 				op(ms)
 			}
 

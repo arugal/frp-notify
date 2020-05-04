@@ -83,7 +83,7 @@ func WithServerAddr(serverAddr string) ManagerServerOption {
 	}
 }
 
-func WithIpAddressService(service ip.AddressService) ManagerServerOption {
+func WithIPAddressService(service ip.AddressService) ManagerServerOption {
 	return func(m *ManagerServer) {
 		m.addressService = service
 	}
