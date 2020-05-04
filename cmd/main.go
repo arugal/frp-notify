@@ -17,8 +17,10 @@ package main
 import (
 	"github/arugal/frp-notify/pkg/cli/interceptor"
 	"github/arugal/frp-notify/pkg/config"
+	"github/arugal/frp-notify/pkg/ip"
 	"github/arugal/frp-notify/pkg/logger"
 	"github/arugal/frp-notify/pkg/notify"
+	_ "github/arugal/frp-notify/pkg/notify/dingtalk"
 	_ "github/arugal/frp-notify/pkg/notify/gotify"
 	_ "github/arugal/frp-notify/pkg/notify/log"
 	"github/arugal/frp-notify/pkg/server"
@@ -58,11 +60,17 @@ var (
 				EnvVar:   "FRP_NOTIFY_WINDOW_INTERVAL",
 				Value:    60,
 			},
+			cli.BoolTFlag{
+				Name:     "ip-query",
+				Usage:    "enable the query for IP address ownership",
+				Required: false,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			configPath := ctx.String("config")
 			bindAddress := ctx.String("bind-address")
 			windowInterval := ctx.Int64("window-interval")
+			enable := ctx.Bool("ip-query")
 
 			cfg := config.Load(configPath)
 
@@ -76,6 +84,12 @@ var (
 
 			ms := server.NewManagerServer(server.WithServerAddr(bindAddress),
 				server.WithWindowInterval(time.Duration(windowInterval)*time.Minute))
+
+			if enable {
+				// 启动 ip 地址所属地查询
+				op := server.WithIPAddressService(ip.NewDefaultAddressService())
+				op(ms)
+			}
 
 			ms.Start()
 			return nil
