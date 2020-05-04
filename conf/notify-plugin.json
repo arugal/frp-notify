@@ -6,6 +6,14 @@
         "server_addr": "127.0.0.1:80",
         "app_token": "AXE9tspWxFgasBC"
       }
+    },
+    {
+      "name": "dingTalk",
+      "config": {
+        "token": "df54651465c1189b76fd13f910b76bed361f8fff31bf9118b1896bc148500000",
+        "secret": "SEC97d8a209f9ddda25b89d63d82a0b2ad4065504cbe4bc043719fbb1a0000000",
+        "is_at_all": "true"
+      }
     }
   ]
 }

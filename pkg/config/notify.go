@@ -25,3 +25,10 @@ type GotifyConfig struct {
 	ServerAddr string `json:"server_addr"`
 	AppToken   string `json:"app_token"`
 }
+
+// DingTalkConfig dingTalk configuration
+type DingTalkConfig struct {
+	Token   string `json:"token"`
+	Secret  string `json:"secret"`
+	IsAtAll bool   `json:"is_at_all"`
+}

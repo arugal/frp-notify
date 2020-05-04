@@ -4,8 +4,6 @@
 
 一个专注于消息通知的 [frp server manager plugin](https://github.com/fatedier/frp/blob/master/doc/server_plugin_zh.md) 实现，让你对进入 `frps` 的连接了如指掌，不再裸奔。
 
-目前支持将 `Login`、`NewProxy`、`NewWorkConn` 和 `NewUserConn` 操作通知到 [gotify-server](https://github.com/gotify/server) 。
-
 ## 快速启动
 
 [下载地址](https://github.com/arugal/frp-notify/releases)
@@ -30,7 +28,7 @@
 ### 命令行启动
 
 ```bash
-./frp-notify start
+./frp-notify start -c /etc/frp-notify/notify-plugin.json -b 127.0.0.1:50080
 ```
 
 ### docker
@@ -43,27 +41,50 @@ docker run -p 50080:80 -v /etc/frp-notify/notify-plugin.json:/notify-plugin.json
 
 ### frps
 
-在 `frps.ini` 增加以下配置 
+在 `frps.ini` 增加以下配置
 
 ```
 [plugin.frp-notify]
-addr = 127.0.0.1:80                             // frp-notify 地址
-path = /handler                                 // frp-notify url, 固定配置
-ops = Login,NewProxy,NewWorkConn,NewUserConn    // 通知的操作
+addr = 127.0.0.1:50080                             // frp-notify 地址
+path = /handler                                    // frp-notify url, 固定配置
+ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
 ```
 
-### 通知插件
+### frp-notify
 
-#### gotify
+在 `notify-plugin.json` 文件中按需配置通知插件，支持同时配置多个插件。
+
+#### dingTalk
+
+将消息发送到钉钉
 
 ```
 {
   "notify_plugins": [
     {
-      "name": "gotify",                         // 固定配置
+      "name": "dingTalk",                                                                                     // 固定配置
       "config": {
-        "server_addr": "127.0.0.1:80",        // gotify-server 服务地址
-        "app_token": "token"                    // gotify-server 配置的 app token
+        "token": "df54651465c1189b76fd13f910b76bed361f8fff31bf9118b1896bc148500000",                          // dingTalk 自定义机器人 token
+        "secret": "SEC97d8a209f9ddda25b89d63d82a0b2ad4065504cbe4bc043719fbb1a0000000",                        // dingTalk 自定义机器人 secret
+        "is_at_all": "false"                                                                                  // 发送消息时是否@所有人
+      }
+    }
+  ]
+}
+```
+
+#### gotify
+
+将消息发送到 gotify-server
+
+```
+{
+  "notify_plugins": [
+    {
+      "name": "gotify",                                                                                        // 固定配置
+      "config": {
+        "server_addr": "127.0.0.1:40080",                                                                      // gotify-server 服务地址
+        "app_token": "token"                                                                                   // gotify-server 配置的 app token
       }
     }
   ]
