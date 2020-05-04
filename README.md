@@ -31,12 +31,6 @@
 ./frp-notify start -c /etc/frp-notify/notify-plugin.json -b 127.0.0.1:50080
 ```
 
-### docker
-
-```bash
-docker run -p 50080:80 -v /etc/frp-notify/notify-plugin.json:/notify-plugin.json arugal/frp-notify:latest start
-```
-
 ## 配置介绍
 
 ### frps
