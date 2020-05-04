@@ -19,6 +19,7 @@ import (
 	"github/arugal/frp-notify/pkg/config"
 	"github/arugal/frp-notify/pkg/logger"
 	"github/arugal/frp-notify/pkg/notify"
+	_ "github/arugal/frp-notify/pkg/notify/dingtalk"
 	_ "github/arugal/frp-notify/pkg/notify/gotify"
 	_ "github/arugal/frp-notify/pkg/notify/log"
 	"github/arugal/frp-notify/pkg/server"
