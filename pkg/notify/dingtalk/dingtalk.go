@@ -32,7 +32,7 @@ var (
 func init() {
 	log = logger.Log
 
-	notify.RegisterNotify("dingTalk", nil)
+	notify.RegisterNotify("dingTalk", dingTalkNotifyBuilder)
 }
 
 type dingTalkNotify struct {
