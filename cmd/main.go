@@ -24,6 +24,7 @@ import (
 	_ "github/arugal/frp-notify/pkg/notify/gotify"
 	_ "github/arugal/frp-notify/pkg/notify/log"
 	"github/arugal/frp-notify/pkg/server"
+	"github/arugal/frp-notify/pkg/version"
 	"os"
 	"strconv"
 	"time"
@@ -83,7 +84,7 @@ var (
 			}
 
 			ms := server.NewManagerServer(server.WithServerAddr(bindAddress),
-				server.WithWindowInterval(time.Duration(windowInterval)*time.Minute))
+				server.WithWindowInterval(windowInterval))
 
 			if enable {
 				// 启动 ip 地址所属地查询
@@ -103,6 +104,7 @@ func init() {
 
 func main() {
 	app := cli.NewApp()
+	app.Version = version.Version
 	app.Name = "frp-notify"
 	app.Usage = "https://github.com/arugal/frp-notify"
 	app.Compiled = time.Now()

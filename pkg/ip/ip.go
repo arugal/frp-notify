@@ -32,7 +32,7 @@ func init() {
 	log = logger.Log
 }
 
-// 查询 ip 地址所属地址
+// 查询 ip 实际地址
 type AddressQuery func(ip string) string
 
 func NewDefaultAddressService() AddressService {

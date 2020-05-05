@@ -45,6 +45,11 @@ build:
 .PHONE: build-all
 build-all: windows linux darwin
 
+.PHONY: $(PLATFORMS)
+$(PLATFORMS):
+	GOOS=$(os) GOARCH=$(ARCH) $(GO_BUILD) $(GO_BUILD_FLAGS) -ldflags "$(GO_BUILD_LDFLAGS)" -o $(OUT_DIR)/$(BINARY)-$(os)-$(ARCH) cmd/main.go
+
+
 .PHONY: lint
 lint:
 	$(GO_LINT) version || curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ${GO_PATH}/bin v1.21.0
