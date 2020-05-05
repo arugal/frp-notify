@@ -71,9 +71,10 @@ func NewManagerServer(opts ...ManagerServerOption) *ManagerServer {
 
 type ManagerServerOption func(m *ManagerServer)
 
-func WithWindowInterval(windowInterval time.Duration) ManagerServerOption {
+// WithWindowInterval unit: minute
+func WithWindowInterval(windowInterval int64) ManagerServerOption {
 	return func(m *ManagerServer) {
-		m.windowInterval = windowInterval
+		m.windowInterval = time.Duration(windowInterval) * time.Minute
 	}
 }
 
