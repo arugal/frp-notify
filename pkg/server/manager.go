@@ -22,8 +22,8 @@ import (
 	"github/arugal/frp-notify/pkg/notify"
 	"github/arugal/frp-notify/pkg/types"
 	"io/ioutil"
+	"net"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -154,7 +154,7 @@ func (m *ManagerServer) doNotify() {
 			content, ok := request.Content.(map[string]interface{})
 			if !ok {
 				log.Warnf("unsupported content: %s \n", request.Content)
-				return
+				break
 			}
 			var title = request.Op
 			var message string
@@ -170,7 +170,12 @@ func (m *ManagerServer) doNotify() {
 				message = fmt.Sprintf("RunID: %v", content["run_id"])
 			case types.OpNewUserConn:
 				// ip cache
-				remoteIP := strings.Split(fmt.Sprint(content["remote_addr"]), ":")[0]
+				remoteAddr := fmt.Sprint(content["remote_addr"])
+				remoteIP, _, err := net.SplitHostPort(remoteAddr)
+				if err != nil {
+					log.Errorf("invalid remote_addr(%s): %v", remoteAddr, err)
+					break
+				}
 				proxyName := fmt.Sprint(content["proxy_name"])
 				ipCache, ok := userConnCache[proxyName]
 				if !ok {
