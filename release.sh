@@ -42,7 +42,7 @@ for os in $os_all; do
                 continue
             fi
             mkdir ${frp_notify_path}
-            mv ./bin/frp-notify-${os}-${arch} ${frp_notify_path}/frp-ntoify
+            mv ./bin/frp-notify-${os}-${arch} ${frp_notify_path}/frp-notify
         fi
         cp ./LICENSE ${frp_notify_path}
         cp -rf ./conf/* ${frp_notify_path}
