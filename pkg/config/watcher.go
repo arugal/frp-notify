@@ -14,10 +14,18 @@
 
 package config
 
-type FRPNotifyConfig struct {
-	BindAddress    string         `json:"-"`
-	WindowInterval int64          `json:"-"`
-	Blacklist      []string       `json:"blacklist"`
-	Whitelist      []string       `json:"whitelist"` // If a handler is configured, only the IP within the handler can be accessed
-	NotifyPlugins  []NotifyConfig `json:"notify_plugins"`
+var (
+	watchers []WatchNotifyConfigFunc
+)
+
+type WatchNotifyConfigFunc func(cfg FRPNotifyConfig)
+
+func RegisterConfigListener(watcher WatchNotifyConfigFunc) {
+	watchers = append(watchers, watcher)
+}
+
+func NewConfigEvent(cfg FRPNotifyConfig) {
+	for _, watcher := range watchers {
+		watcher(cfg)
+	}
 }

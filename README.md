@@ -44,13 +44,46 @@ path = /handler                                    // frp-notify url, 固定配�
 ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
 ```
 
-### frp-notify
+### 黑白名单配置
+
+先判断白名单，后判断黑名单。仅对 `NewUserConn` 有效。
+
+```
+{
+  "blacklist": [                                   // 黑名单
+    "127.0.0.1"
+  ],
+  "whitelist": [                                   // 白名单
+    "127.0.0.1"
+  ],
+  "notify_plugins": [
+    ...
+  ]
+}
+```
+
+### 通知插件配置
 
 在 `notify-plugin.json` 文件中按需配置通知插件，支持同时配置多个插件。
 
+#### log
+
+将消息打印到控制台，用于调试。
+
+```
+{
+  "notify_plugins": [
+    {
+      "name": "log",                                                               // 固定配置
+      "config": {}
+    }
+  ]
+}
+```
+
 #### dingTalk
 
-将消息发送到钉钉
+将消息发送到钉钉。
 
 ```
 {
@@ -71,7 +104,7 @@ ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
 
 #### gotify
 
-将消息发送到 [gotify-server](https://github.com/gotify/server)
+将消息发送到 [gotify-server](https://github.com/gotify/server)。
 
 ```
 {

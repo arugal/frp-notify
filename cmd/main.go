@@ -17,13 +17,13 @@ package main
 import (
 	"github/arugal/frp-notify/pkg/cli/interceptor"
 	"github/arugal/frp-notify/pkg/config"
+	"github/arugal/frp-notify/pkg/controller"
+	"github/arugal/frp-notify/pkg/controller/handler"
 	"github/arugal/frp-notify/pkg/ip"
 	"github/arugal/frp-notify/pkg/logger"
-	"github/arugal/frp-notify/pkg/notify"
 	_ "github/arugal/frp-notify/pkg/notify/dingtalk"
 	_ "github/arugal/frp-notify/pkg/notify/gotify"
 	_ "github/arugal/frp-notify/pkg/notify/log"
-	"github/arugal/frp-notify/pkg/server"
 	"github/arugal/frp-notify/pkg/version"
 	"os"
 	"strconv"
@@ -49,7 +49,7 @@ var (
 			},
 			cli.StringFlag{
 				Name:     "bind-address, b",
-				Usage:    "manager server listen `ADDRESS`",
+				Usage:    "manager controller listen `ADDRESS`",
 				Required: false,
 				EnvVar:   "FRP_NOTIFY_MANAGER_ADDRESS",
 				Value:    ":80",
@@ -74,26 +74,17 @@ var (
 			enable := ctx.Bool("ip-query")
 
 			cfg := config.Load(configPath)
+			cfg.BindAddress = bindAddress
+			cfg.WindowInterval = windowInterval
 
-			// init notify
-			for _, notifyCfg := range cfg.NotifyPlugins {
-				err := notify.InitNotify(notifyCfg)
-				if err != nil {
-					log.Fatalf("init notify [%s] failed %s", notifyCfg.Name, err.Error())
-				}
-			}
+			ms := controller.NewManagerController(controller.WithHandlerChains(
+				handler.NewWhitelistHandler(),
+				handler.NewBlacklistHandler(),
+				handler.NewNotifyHandler(handler.WithAddressService(enable, ip.NewDefaultAddressService()))))
 
-			ms := server.NewManagerServer(server.WithServerAddr(bindAddress),
-				server.WithWindowInterval(windowInterval))
+			config.NewConfigEvent(*cfg)
 
-			if enable {
-				// 启动 ip 地址所属地查询
-				op := server.WithIPAddressService(ip.NewDefaultAddressService())
-				op(ms)
-			}
-
-			ms.Start()
-			return nil
+			return ms.Start()
 		},
 	}
 )
@@ -109,7 +100,7 @@ func main() {
 	app.Usage = "https://github.com/arugal/frp-notify"
 	app.Compiled = time.Now()
 	app.Copyright = "(c) " + strconv.Itoa(time.Now().Year()) + " arugal"
-	app.Description = "frp server manager plugin implement, focus on notify."
+	app.Description = "frp controller manager plugin implement, focus on notify."
 
 	flags := []cli.Flag{
 		altsrc.NewStringFlag(cli.StringFlag{
