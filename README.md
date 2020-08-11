@@ -44,7 +44,7 @@ path = /handler                                    // frp-notify url, 固定配�
 ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
 ```
 
-### 黑白名单配置
+### 黑白名单配置（`IP` 过滤）
 
 先判断白名单，后判断黑名单。仅对 `NewUserConn` 有效。
 

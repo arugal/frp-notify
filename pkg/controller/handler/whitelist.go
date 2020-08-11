@@ -31,10 +31,7 @@ func NewWhitelistHandler() controller.HandlerChain {
 }
 
 func (c whitelistHandler) Op(op string) bool {
-	if op == types.OpNewUserConn {
-		return true
-	}
-	return false
+	return op == types.OpNewUserConn
 }
 
 func (c whitelistHandler) Do(req *types.Request) (bool, *types.Response) {
