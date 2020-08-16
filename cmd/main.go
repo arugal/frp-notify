@@ -50,7 +50,7 @@ var (
 			},
 			cli.StringFlag{
 				Name:     "bind-address, b",
-				Usage:    "manager controller listen `ADDRESS`",
+				Usage:    "manager server listen `ADDRESS`",
 				Required: false,
 				EnvVar:   "FRP_NOTIFY_MANAGER_ADDRESS",
 				Value:    ":80",
@@ -110,7 +110,7 @@ func main() {
 	app.Usage = "https://github.com/arugal/frp-notify"
 	app.Compiled = time.Now()
 	app.Copyright = "(c) " + strconv.Itoa(time.Now().Year()) + " arugal"
-	app.Description = "frp controller manager plugin implement, focus on notify."
+	app.Description = "frp server manager plugin implement, focus on notify."
 
 	flags := []cli.Flag{
 		altsrc.NewStringFlag(cli.StringFlag{
