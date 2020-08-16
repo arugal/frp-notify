@@ -74,7 +74,7 @@ func WithHandlerChains(handler ...HandlerChain) ManagerControllerOption {
 }
 
 // Start start manager service
-func (m *ManagerController) Start() error {
+func (m *ManagerController) Start(stop chan struct{}) error {
 	for _, handler := range m.chains {
 		if richHandler, ok := handler.(RichHandlerChain); ok {
 			err := richHandler.Open()
@@ -83,7 +83,7 @@ func (m *ManagerController) Start() error {
 			}
 		}
 	}
-	m.httpServer()
+	go m.httpServer()
 	return nil
 }
 

@@ -59,10 +59,10 @@ func NewNotifyHandler(ops ...NotifyHandlerOption) controller.HandlerChain {
 
 type NotifyHandlerOption func(m *notifyHandler)
 
-func WithAddressService(enable bool, addressService ip.AddressService) NotifyHandlerOption {
+func WithAddressService(enable bool, newServiceFunc func() ip.AddressService) NotifyHandlerOption {
 	return func(m *notifyHandler) {
 		if enable {
-			m.addressService = addressService
+			m.addressService = newServiceFunc()
 		}
 	}
 }

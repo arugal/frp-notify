@@ -58,3 +58,6 @@ lint:
 .PHONY: fix
 fix:
 	$(GO_LINT) run -v --fix ./...
+
+test:
+	$(GO_TEST) -v ./...

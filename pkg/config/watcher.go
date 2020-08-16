@@ -24,7 +24,30 @@ func RegisterConfigListener(watcher WatchNotifyConfigFunc) {
 	watchers = append(watchers, watcher)
 }
 
-func NewConfigEvent(cfg FRPNotifyConfig) {
+type configController struct {
+	bindAddress    string
+	windowInterval int64
+
+	configPath string
+}
+
+func NewConfigController(bindAddress string, windowInterval int64, configPath string) *configController {
+	return &configController{
+		bindAddress:    bindAddress,
+		windowInterval: windowInterval,
+		configPath:     configPath,
+	}
+}
+
+func (c configController) Start(stop chan struct{}) {
+	cfg := Load(c.configPath)
+	cfg.BindAddress = c.bindAddress
+	cfg.WindowInterval = c.windowInterval
+
+	c.configEvent(*cfg)
+}
+
+func (c configController) configEvent(cfg FRPNotifyConfig) {
 	for _, watcher := range watchers {
 		watcher(cfg)
 	}

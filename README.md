@@ -16,7 +16,7 @@
 |    |          frp-notify.service                  # linux 系统服务配置文件
 |
 │           frp-notify                              # frp-notify 程序
-|           notify-plugin.json                      # 通知插件配置文件
+|           frp-notify.json                      # 通知插件配置文件
 ```
 
 ### 打印帮助信息
@@ -28,7 +28,7 @@
 ### 命令行启动
 
 ```bash
-./frp-notify start -c /etc/frp-notify/notify-plugin.json -b 127.0.0.1:50080
+./frp-notify start -c /etc/frp-notify/frp-notify.json -b 127.0.0.1:50080
 ```
 
 ## 配置介绍
@@ -64,7 +64,7 @@ ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
 
 ### 通知插件配置
 
-在 `notify-plugin.json` 文件中按需配置通知插件，支持同时配置多个插件。
+在 `frp-notify.json` 文件中按需配置通知插件，支持同时配置多个插件。
 
 #### log
 

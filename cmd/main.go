@@ -16,6 +16,7 @@ package main
 
 import (
 	"github/arugal/frp-notify/pkg/cli/interceptor"
+	"github/arugal/frp-notify/pkg/cmd"
 	"github/arugal/frp-notify/pkg/config"
 	"github/arugal/frp-notify/pkg/controller"
 	"github/arugal/frp-notify/pkg/controller/handler"
@@ -45,7 +46,7 @@ var (
 				Usage:    "load notify plugin configuration from `FILE`",
 				Required: false,
 				EnvVar:   "FRP_NOTIFY_PLUGIN_CONF",
-				Value:    "notify-plugin.json",
+				Value:    "frp-notify.json",
 			},
 			cli.StringFlag{
 				Name:     "bind-address, b",
@@ -73,18 +74,27 @@ var (
 			windowInterval := ctx.Int64("window-interval")
 			enable := ctx.Bool("ip-query")
 
-			cfg := config.Load(configPath)
-			cfg.BindAddress = bindAddress
-			cfg.WindowInterval = windowInterval
+			// Create the stop channel for all of the servers.
+			stop := make(chan struct{})
 
 			ms := controller.NewManagerController(controller.WithHandlerChains(
 				handler.NewWhitelistHandler(),
 				handler.NewBlacklistHandler(),
-				handler.NewNotifyHandler(handler.WithAddressService(enable, ip.NewDefaultAddressService()))))
+				handler.NewNotifyHandler(handler.WithAddressService(enable, func() ip.AddressService {
+					return ip.NewDefaultAddressService()
+				}))))
 
-			config.NewConfigEvent(*cfg)
+			// config
+			configController := config.NewConfigController(bindAddress, windowInterval, configPath)
+			configController.Start(stop)
 
-			return ms.Start()
+			err := ms.Start(stop)
+			if err != nil {
+				return err
+			}
+
+			cmd.WaitSignal(stop)
+			return nil
 		},
 	}
 )
