@@ -31,8 +31,8 @@ type configController struct {
 	configPath string
 }
 
-func NewConfigController(bindAddress string, windowInterval int64, configPath string) *configController {
-	return &configController{
+func NewConfigController(bindAddress string, windowInterval int64, configPath string) configController {
+	return configController{
 		bindAddress:    bindAddress,
 		windowInterval: windowInterval,
 		configPath:     configPath,
