@@ -23,7 +23,6 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -83,7 +82,6 @@ func (m *ManagerController) Start(stop chan struct{}) error {
 			}
 		}
 	}
-	go m.httpServer()
 	return nil
 }
 
@@ -96,15 +94,25 @@ func (m *ManagerController) Close() {
 	}
 }
 
-func (m *ManagerController) httpServer() {
-	gin.SetMode(gin.ReleaseMode)
-	r := gin.Default()
+func (m *ManagerController) Register(mux *http.ServeMux) {
 
-	r.POST("/handler", func(ctx *gin.Context) {
-		body, err := ioutil.ReadAll(ctx.Request.Body)
+	render := func(writer http.ResponseWriter, statusCode int, res interface{}) {
+		writer.WriteHeader(statusCode)
+		b, err := json.Marshal(res)
+		if err != nil {
+			log.Debug("marshal err: %v", err)
+		}
+		_, err = writer.Write(b)
+		if err != nil {
+			log.Error("response writer err: %v", err)
+		}
+	}
+
+	mux.HandleFunc("/handler", func(writer http.ResponseWriter, req *http.Request) {
+		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			log.Errorf("read request body error: %v \n", err)
-			ctx.JSON(http.StatusOK, rejectedResponse)
+			render(writer, http.StatusOK, rejectedResponse)
 			return
 		}
 
@@ -112,21 +120,21 @@ func (m *ManagerController) httpServer() {
 		err = json.Unmarshal(body, request)
 		if err != nil {
 			log.Errorf("unmarshal request body error: %v \n", err)
-			ctx.JSON(http.StatusOK, rejectedResponse)
+			render(writer, http.StatusOK, rejectedResponse)
 			return
 		}
 
 		// verify api version
 		if request.Version != types.APIVersion {
 			log.Warnf("unsupported api version %s \n", request.Version)
-			ctx.JSON(http.StatusOK, rejectedResponse)
+			render(writer, http.StatusOK, rejectedResponse)
 			return
 		}
 
 		// ignore ping operator
 		if request.Op == types.OpPing {
 			log.Debug("ignore ping operation")
-			ctx.JSON(http.StatusOK, normalResponse)
+			render(writer, http.StatusOK, normalResponse)
 			return
 		}
 
@@ -134,7 +142,7 @@ func (m *ManagerController) httpServer() {
 		err = parserContent(request)
 		if err != nil {
 			log.Errorf("unmarshal request content [%s] error: %v \n", request.Content, err)
-			ctx.JSON(http.StatusOK, rejectedResponse)
+			render(writer, http.StatusOK, rejectedResponse)
 			return
 		}
 
@@ -142,19 +150,13 @@ func (m *ManagerController) httpServer() {
 			if handler.Op(request.Op) {
 				ok, resp := handler.Do(request)
 				if !ok {
-					ctx.JSON(http.StatusOK, &resp)
+					render(writer, http.StatusOK, &resp)
 					return
 				}
 			}
 		}
-
-		ctx.JSON(http.StatusOK, normalResponse)
+		render(writer, http.StatusOK, normalResponse)
 	})
-
-	err := r.Run(m.cfg.BindAddress)
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func parserContent(req *types.Request) error {

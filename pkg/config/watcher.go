@@ -14,6 +14,10 @@
 
 package config
 
+import (
+	"github.com/fsnotify/fsnotify"
+)
+
 var (
 	watchers []WatchNotifyConfigFunc
 )
@@ -31,23 +35,57 @@ type FRPNotifyConfigController struct {
 	configPath string
 }
 
-func NewConfigController(bindAddress string, windowInterval int64, configPath string) FRPNotifyConfigController {
-	return FRPNotifyConfigController{
+func NewConfigController(bindAddress string, windowInterval int64, configPath string) *FRPNotifyConfigController {
+	return &FRPNotifyConfigController{
 		bindAddress:    bindAddress,
 		windowInterval: windowInterval,
 		configPath:     configPath,
 	}
 }
 
-func (c FRPNotifyConfigController) Start(stop chan struct{}) {
+func (c *FRPNotifyConfigController) Start(stop chan struct{}) {
+	c.reload()
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer watcher.Close()
+
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+				if event.Op&fsnotify.Write == fsnotify.Write {
+					c.reload()
+				}
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+				log.Debugf("error: %v", err)
+			}
+		}
+	}()
+
+	err = watcher.Add(c.configPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	<-stop
+}
+
+func (c *FRPNotifyConfigController) reload() {
 	cfg := Load(c.configPath)
 	cfg.BindAddress = c.bindAddress
 	cfg.WindowInterval = c.windowInterval
-
+	log.Debugf("config: %v", cfg)
 	c.configEvent(*cfg)
 }
 
-func (c FRPNotifyConfigController) configEvent(cfg FRPNotifyConfig) {
+func (c *FRPNotifyConfigController) configEvent(cfg FRPNotifyConfig) {
 	for _, watcher := range watchers {
 		watcher(cfg)
 	}

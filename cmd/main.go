@@ -26,6 +26,7 @@ import (
 	_ "github/arugal/frp-notify/pkg/notify/gotify"
 	_ "github/arugal/frp-notify/pkg/notify/log"
 	"github/arugal/frp-notify/pkg/version"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -77,6 +78,8 @@ var (
 			// Create the stop channel for all of the servers.
 			stop := make(chan struct{})
 
+			mux := http.NewServeMux()
+
 			ms := controller.NewManagerController(controller.WithHandlerChains(
 				handler.NewWhitelistHandler(),
 				handler.NewBlacklistHandler(),
@@ -84,16 +87,31 @@ var (
 					return ip.NewDefaultAddressService()
 				}))))
 
+			ms.Register(mux)
+
 			// config
 			configController := config.NewConfigController(bindAddress, windowInterval, configPath)
-			configController.Start(stop)
+			go configController.Start(stop)
 
 			err := ms.Start(stop)
 			if err != nil {
 				return err
 			}
 
+			serve := http.Server{
+				Handler: mux,
+				Addr:    bindAddress,
+			}
+
+			go func() {
+				err := serve.ListenAndServe()
+				if err != nil {
+					panic(err)
+				}
+			}()
+
 			cmd.WaitSignal(stop)
+			_ = serve.Close()
 			return nil
 		},
 	}
