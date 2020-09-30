@@ -100,11 +100,11 @@ func (m *ManagerController) Register(mux *http.ServeMux) {
 		writer.WriteHeader(statusCode)
 		b, err := json.Marshal(res)
 		if err != nil {
-			log.Debug("marshal err: %v", err)
+			log.Debugf("marshal err: %v", err)
 		}
 		_, err = writer.Write(b)
 		if err != nil {
-			log.Error("response writer err: %v", err)
+			log.Debugf("response writer err: %v", err)
 		}
 	}
 

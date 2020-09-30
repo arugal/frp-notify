@@ -61,11 +61,11 @@ func (c *FRPNotifyConfigController) Start(stop chan struct{}) {
 				if event.Op&fsnotify.Write == fsnotify.Write {
 					c.reload()
 				}
-			case err, ok := <-watcher.Errors:
+			case er, ok := <-watcher.Errors:
 				if !ok {
 					return
 				}
-				log.Debugf("error: %v", err)
+				log.Debugf("error: %v", er)
 			}
 		}
 	}()
