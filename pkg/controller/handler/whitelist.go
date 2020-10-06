@@ -30,11 +30,11 @@ func NewWhitelistHandler() controller.HandlerChain {
 	return handler
 }
 
-func (c whitelistHandler) Op(op string) bool {
+func (c *whitelistHandler) Op(op string) bool {
 	return op == types.OpNewUserConn
 }
 
-func (c whitelistHandler) Do(req *types.Request) (bool, *types.Response) {
+func (c *whitelistHandler) Do(req *types.Request) (bool, *types.Response) {
 	whitelist := c.whitelist
 	if len(whitelist) > 0 {
 		conn := req.Body.(*types.UserConn)

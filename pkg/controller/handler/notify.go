@@ -69,7 +69,7 @@ func WithAddressService(enable bool, newServiceFunc func() ip.AddressService) No
 	}
 }
 
-func (n notifyHandler) Op(op string) bool {
+func (n *notifyHandler) Op(op string) bool {
 	switch op {
 	case types.OpLogin, types.OpNewUserConn, types.OpNewWorkConn, types.OpNewProxy:
 		return true
@@ -78,7 +78,7 @@ func (n notifyHandler) Op(op string) bool {
 	}
 }
 
-func (n notifyHandler) Do(req *types.Request) (bool, *types.Response) {
+func (n *notifyHandler) Do(req *types.Request) (bool, *types.Response) {
 	select {
 	case n.requestChan <- req:
 	default:
@@ -87,12 +87,12 @@ func (n notifyHandler) Do(req *types.Request) (bool, *types.Response) {
 	return true, nil
 }
 
-func (n notifyHandler) Open() error {
+func (n *notifyHandler) Open() error {
 	go n.doNotify()
 	return nil
 }
 
-func (n notifyHandler) Close() error {
+func (n *notifyHandler) Close() error {
 	close(n.requestChan)
 	return nil
 }
