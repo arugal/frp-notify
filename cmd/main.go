@@ -16,15 +16,17 @@ package main
 
 import (
 	"github/arugal/frp-notify/pkg/cli/interceptor"
+	"github/arugal/frp-notify/pkg/cmd"
 	"github/arugal/frp-notify/pkg/config"
+	"github/arugal/frp-notify/pkg/controller"
+	"github/arugal/frp-notify/pkg/controller/handler"
 	"github/arugal/frp-notify/pkg/ip"
 	"github/arugal/frp-notify/pkg/logger"
-	"github/arugal/frp-notify/pkg/notify"
 	_ "github/arugal/frp-notify/pkg/notify/dingtalk"
 	_ "github/arugal/frp-notify/pkg/notify/gotify"
 	_ "github/arugal/frp-notify/pkg/notify/log"
-	"github/arugal/frp-notify/pkg/server"
 	"github/arugal/frp-notify/pkg/version"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -45,7 +47,7 @@ var (
 				Usage:    "load notify plugin configuration from `FILE`",
 				Required: false,
 				EnvVar:   "FRP_NOTIFY_PLUGIN_CONF",
-				Value:    "notify-plugin.json",
+				Value:    "frp-notify.json",
 			},
 			cli.StringFlag{
 				Name:     "bind-address, b",
@@ -73,26 +75,43 @@ var (
 			windowInterval := ctx.Int64("window-interval")
 			enable := ctx.Bool("ip-query")
 
-			cfg := config.Load(configPath)
+			// Create the stop channel for all of the servers.
+			stop := make(chan struct{})
 
-			// init notify
-			for _, notifyCfg := range cfg.NotifyPlugins {
-				err := notify.InitNotify(notifyCfg)
+			mux := http.NewServeMux()
+
+			ms := controller.NewManagerController(controller.WithHandlerChains(
+				handler.NewWhitelistHandler(),
+				handler.NewBlacklistHandler(),
+				handler.NewNotifyHandler(handler.WithAddressService(enable, func() ip.AddressService {
+					return ip.NewDefaultAddressService()
+				}))))
+
+			ms.Register(mux)
+
+			// config
+			configController := config.NewConfigController(bindAddress, windowInterval, configPath)
+			go configController.Start(stop)
+
+			err := ms.Start(stop)
+			if err != nil {
+				return err
+			}
+
+			serve := http.Server{
+				Handler: mux,
+				Addr:    bindAddress,
+			}
+
+			go func() {
+				err := serve.ListenAndServe()
 				if err != nil {
-					log.Fatalf("init notify [%s] failed %s", notifyCfg.Name, err.Error())
+					panic(err)
 				}
-			}
+			}()
 
-			ms := server.NewManagerServer(server.WithServerAddr(bindAddress),
-				server.WithWindowInterval(windowInterval))
-
-			if enable {
-				// 启动 ip 地址所属地查询
-				op := server.WithIPAddressService(ip.NewDefaultAddressService())
-				op(ms)
-			}
-
-			ms.Start()
+			cmd.WaitSignal(stop)
+			_ = serve.Close()
 			return nil
 		},
 	}

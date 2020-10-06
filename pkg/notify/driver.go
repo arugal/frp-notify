@@ -18,6 +18,7 @@ import (
 	"errors"
 	"github/arugal/frp-notify/pkg/config"
 	"github/arugal/frp-notify/pkg/logger"
+	"sync"
 
 	"github.com/sirupsen/logrus"
 )
@@ -28,10 +29,22 @@ var (
 	log *logrus.Logger
 
 	errNoSuchNotify = errors.New("no such notify")
+
+	once sync.Once
 )
 
 func init() {
 	log = logger.Log
+	config.RegisterConfigListener(func(cfg config.FRPNotifyConfig) {
+		once.Do(func() {
+			for _, notifyCfg := range cfg.NotifyPlugins {
+				err := initNotify(notifyCfg)
+				if err != nil {
+					log.Errorf("init notify err : %v, cfg: %v", err, notifyCfg)
+				}
+			}
+		})
+	})
 }
 
 type holder struct {
@@ -40,7 +53,7 @@ type holder struct {
 	notifyBuilder PluginBuilder
 }
 
-func InitNotify(cfg config.NotifyConfig) (err error) {
+func initNotify(cfg config.NotifyConfig) (err error) {
 	holder, ok := notifys[cfg.Name]
 	if ok {
 		holder.notify, err = holder.notifyBuilder(cfg.Config)

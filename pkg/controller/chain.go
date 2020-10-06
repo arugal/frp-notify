@@ -12,12 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package controller
 
-type FRPNotifyConfig struct {
-	BindAddress    string         `json:"-"`
-	WindowInterval int64          `json:"-"`
-	Blacklist      []string       `json:"blacklist"`
-	Whitelist      []string       `json:"whitelist"` // If a handler is configured, only the IP within the handler can be accessed
-	NotifyPlugins  []NotifyConfig `json:"notify_plugins"`
+import "github/arugal/frp-notify/pkg/types"
+
+type HandlerChain interface {
+	Op(op string) bool
+	Do(req *types.Request) (bool, *types.Response)
+}
+
+type RichHandlerChain interface {
+	HandlerChain
+	Open() error
+	Close() error
 }

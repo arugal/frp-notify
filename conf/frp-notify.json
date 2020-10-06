@@ -1,4 +1,8 @@
 {
+  "blacklist": [
+  ],
+  "whitelist": [
+  ],
   "notify_plugins": [
     {
       "name": "gotify",

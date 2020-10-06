@@ -1,0 +1,15 @@
+{
+  "blacklist": [
+    "127.0.0.1"
+  ],
+  "whitelist": [
+    "129.1.1.1"
+  ],
+  "notify_plugins": [
+    {
+      "name": "log",
+      "config": {
+      }
+    }
+  ]
+}

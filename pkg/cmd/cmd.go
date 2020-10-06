@@ -12,12 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package cmd
 
-type FRPNotifyConfig struct {
-	BindAddress    string         `json:"-"`
-	WindowInterval int64          `json:"-"`
-	Blacklist      []string       `json:"blacklist"`
-	Whitelist      []string       `json:"whitelist"` // If a handler is configured, only the IP within the handler can be accessed
-	NotifyPlugins  []NotifyConfig `json:"notify_plugins"`
+import (
+	"os"
+	"os/signal"
+	"syscall"
+)
+
+// WaitSignal awaits for SIGINT or SIGTERM and closes the channel
+func WaitSignal(stop chan struct{}) {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	<-sigs
+	close(stop)
 }

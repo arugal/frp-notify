@@ -36,5 +36,7 @@ jobs:
         run: make deps
       - name: Lint
         run: make lint
+      - name: Test
+        run: make test
       - name: Build
         run: make build

@@ -21,7 +21,7 @@ Type=simple
 User=nobody
 Restart=on-failure
 RestartSec=5s
-ExecStart=/usr/bin/frp-notify start -c /etc/frp-notify/notify-plugin.json
+ExecStart=/usr/bin/frp-notify start -c /etc/frp-notify/frp-notify.json
 
 [Install]
 WantedBy=multi-user.target
