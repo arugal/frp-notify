@@ -30,11 +30,11 @@ func NewBlacklistHandler() controller.HandlerChain {
 	return handler
 }
 
-func (b blacklistHandler) Op(op string) bool {
+func (b *blacklistHandler) Op(op string) bool {
 	return op == types.OpNewUserConn
 }
 
-func (b blacklistHandler) Do(req *types.Request) (bool, *types.Response) {
+func (b *blacklistHandler) Do(req *types.Request) (bool, *types.Response) {
 	blacklist := b.blacklist
 	if len(blacklist) > 0 {
 		conn := req.Body.(*types.UserConn)

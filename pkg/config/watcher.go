@@ -15,7 +15,9 @@
 package config
 
 import (
-	"github.com/fsnotify/fsnotify"
+	"time"
+
+	"istio.io/pkg/filewatcher"
 )
 
 var (
@@ -45,35 +47,13 @@ func NewConfigController(bindAddress string, windowInterval int64, configPath st
 
 func (c *FRPNotifyConfigController) Start(stop chan struct{}) {
 	c.reload()
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer watcher.Close()
 
-	go func() {
-		for {
-			select {
-			case event, ok := <-watcher.Events:
-				if !ok {
-					return
-				}
-				if event.Op&fsnotify.Write == fsnotify.Write {
-					c.reload()
-				}
-			case er, ok := <-watcher.Errors:
-				if !ok {
-					return
-				}
-				log.Debugf("error: %v", er)
-			}
-		}
-	}()
-
-	err = watcher.Add(c.configPath)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// watcher config file
+	fileWatcher := filewatcher.NewWatcher()
+	defer fileWatcher.Close()
+	addFileWatcher(fileWatcher, c.configPath, func() {
+		c.reload()
+	})
 	<-stop
 }
 
@@ -89,4 +69,27 @@ func (c *FRPNotifyConfigController) configEvent(cfg FRPNotifyConfig) {
 	for _, watcher := range watchers {
 		watcher(cfg)
 	}
+}
+
+// Add to the FileWatcher the provided file and execute the provided function
+// on any change event for this file.
+// Using a debouncing mechanism to avoid calling the callback multiple times
+// per event.
+func addFileWatcher(fileWatcher filewatcher.FileWatcher, file string, callback func()) {
+	_ = fileWatcher.Add(file)
+	go func() {
+		var timerC <-chan time.Time
+		for {
+			select {
+			case <-timerC:
+				timerC = nil
+				callback()
+			case <-fileWatcher.Events(file):
+				// Use a timer to debounce configuration updates
+				if timerC == nil {
+					timerC = time.After(100 * time.Millisecond)
+				}
+			}
+		}
+	}()
 }
