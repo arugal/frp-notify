@@ -29,6 +29,8 @@ import (
 const (
 	defaultWindowInterval = time.Hour
 	maxRequestSize        = 3000
+
+	localIp = "127.0.0.1"
 )
 
 var log *logrus.Logger
@@ -134,7 +136,7 @@ func (n notifyHandler) doNotify() {
 				}
 				ipCache[userConn.RemoteIP] = false
 				var ipCName string
-				if n.addressService != nil {
+				if n.addressService != nil && userConn.RemoteIP != localIp {
 					ipCName = n.addressService.Query(userConn.RemoteIP)
 				}
 				if ipCName != "" {
