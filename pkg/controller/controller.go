@@ -115,6 +115,9 @@ func (m *ManagerController) Register(mux *http.ServeMux) {
 			render(writer, http.StatusOK, rejectedResponse)
 			return
 		}
+		if log.Level == logrus.DebugLevel {
+			log.Debugf("request body: %s", string(body))
+		}
 
 		request := &types.Request{}
 		err = json.Unmarshal(body, request)

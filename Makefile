@@ -27,7 +27,10 @@ GO_TEST = $(GO) test
 GO_INSTALL = $(GO) install
 GO_LINT = $(GO_PATH)/bin/golangci-lint
 GO_BUILD_FLAGS = -v
-GO_BUILD_LDFLAGS = -X main.version=$(VERSION)
+GO_BUILD_LDFLAGS = "-X 'main.version=${VERSION}' \
+                    -X 'main.goVersion=`go version`' \
+                    -X 'main.buildTime=`git show -s --format=%cd`' \
+                    -X 'main.gitHash=`git show -s --format=%H`'"
 
 PLATFORMS := windows linux darwin
 
@@ -40,14 +43,14 @@ deps:
 
 .PHONE: build
 build:
-	${GO_BUILD} $(GO_BUILD_FLAGS) -o ${OUT_DIR}/${BINARY} cmd/main.go
+	${GO_BUILD} -ldflags $(GO_BUILD_LDFLAGS) $(GO_BUILD_FLAGS) -o ${OUT_DIR}/${BINARY} cmd/main.go
 
 .PHONE: build-all
 build-all: windows linux darwin
 
 .PHONY: $(PLATFORMS)
 $(PLATFORMS):
-	GOOS=$(os) GOARCH=$(ARCH) $(GO_BUILD) $(GO_BUILD_FLAGS) -ldflags "$(GO_BUILD_LDFLAGS)" -o $(OUT_DIR)/$(BINARY)-$(os)-$(ARCH) cmd/main.go
+	GOOS=$(os) GOARCH=$(ARCH) $(GO_BUILD) $(GO_BUILD_FLAGS) -ldflags $(GO_BUILD_LDFLAGS) -o $(OUT_DIR)/$(BINARY)-$(os)-$(ARCH) cmd/main.go
 
 
 .PHONY: lint
