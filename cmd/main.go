@@ -25,7 +25,6 @@ import (
 	_ "github/arugal/frp-notify/pkg/notify/dingtalk"
 	_ "github/arugal/frp-notify/pkg/notify/gotify"
 	_ "github/arugal/frp-notify/pkg/notify/log"
-	"github/arugal/frp-notify/pkg/version"
 	"net/http"
 	"os"
 	"strconv"
@@ -117,13 +116,20 @@ var (
 	}
 )
 
+var (
+	version   = ""
+	goVersion = ""
+	buildTime = ""
+	gitHash   = ""
+)
+
 func init() {
 	log = logger.Log
 }
 
 func main() {
 	app := cli.NewApp()
-	app.Version = version.Version
+	app.Version = version + " " + goVersion + " " + buildTime + " " + gitHash
 	app.Name = "frp-notify"
 	app.Usage = "https://github.com/arugal/frp-notify"
 	app.Compiled = time.Now()
