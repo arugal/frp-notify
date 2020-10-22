@@ -27,10 +27,9 @@ GO_TEST = $(GO) test
 GO_INSTALL = $(GO) install
 GO_LINT = $(GO_PATH)/bin/golangci-lint
 GO_BUILD_FLAGS = -v
-GO_BUILD_LDFLAGS = "-X 'main.version=${VERSION}' \
-                    -X 'main.goVersion=`go version`' \
-                    -X 'main.buildTime=`git show -s --format=%cd`' \
-                    -X 'main.gitHash=`git show -s --format=%H`'"
+GO_BUILD_LDFLAGS = "-X 'github/arugal/frp-notify/pkg/version.Version=${VERSION}' \
+                    -X 'github/arugal/frp-notify/pkg/version.BuildTime=`date "+%y-%m-%d"`' \
+                    -X 'github/arugal/frp-notify/pkg/version.GitHash=`git rev-parse --short HEAD`'"
 
 PLATFORMS := windows linux darwin
 
