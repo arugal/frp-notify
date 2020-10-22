@@ -14,10 +14,10 @@
 
 #!/usr/bin/env bash
 
-version="0.1.0"
+version ?= latest
 
 # cross_compiles
-make build-all
+make build-all VERSION=${version}
 
 rm -rf ./release
 mkdir ./release
