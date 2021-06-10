@@ -53,7 +53,7 @@ type Login struct {
 	Timestamp    int64             `json:"timestamp"`
 	PrivilegeKey string            `json:"privilege_key"`
 	RunID        string            `json:"run_id"`
-	PoolCount    string            `json:"pool_count"`
+	PoolCount    int               `json:"pool_count"`
 	Metas        map[string]string `json:"metas,omitempty"`
 }
 
