@@ -102,6 +102,31 @@ ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
 
 ![实例截图](doc/images/dingtalk.png)
 
+#### wxwork
+
+将消息发送到企业微信。
+
+```
+{
+  "notify_plugins": [
+    {
+      "name": "wxwork",
+      "config": {
+        "corp_id": "ww123456789",
+        "corp_secret": "UK__xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "agent_id": 12345678,
+        "to_user": [],
+        "to_party": [],
+        "to_tag": [],
+        "filter_regexp": ".*"
+      }
+    }
+  ]
+}
+```
+
+![实例截图](doc/images/wxwork.png)
+
 #### gotify
 
 将消息发送到 [gotify-server](https://github.com/gotify/server)。
