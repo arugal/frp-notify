@@ -104,9 +104,7 @@ func (wx *wxworkNotify) SendMessage(title string, message string) {
 	}
 
 	if filterRegexp.MatchString(message) {
-		err = wx.app.SendMarkdownMessage(&toWho,
-			fmt.Sprintf("`%s` %s", title, message), false,
-		)
+		err = wx.app.SendTextCardMessage(&toWho, title, message, wx.cfg.AdminUrl, "后台详情", false)
 
 		if err != nil {
 			log.Errorf("send message to wxwork error, err: %s", err)

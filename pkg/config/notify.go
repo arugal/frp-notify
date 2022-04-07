@@ -42,4 +42,5 @@ type WxWorkConfig struct {
 	ToParty      []string `json:"to_party"`
 	ToTag        []string `json:"to_tag"`
 	FilterRegExp string   `json:"filter_regexp"`
+	AdminUrl     string   `json:"admin_url"`
 }
