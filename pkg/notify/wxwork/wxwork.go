@@ -17,12 +17,13 @@ package wxwork
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"github.com/xen0n/go-workwx"
 	"github/arugal/frp-notify/pkg/config"
 	"github/arugal/frp-notify/pkg/logger"
 	"github/arugal/frp-notify/pkg/notify"
 	"regexp"
+
+	"github.com/sirupsen/logrus"
+	"github.com/xen0n/go-workwx"
 )
 
 var (
