@@ -70,7 +70,7 @@ type Proxy struct {
 
 	CustomDomains     []string          `json:"custom_domains"` // http and https only
 	Subdomain         string            `json:"subdomain"`
-	Locations         string            `json:"locations"`
+	Locations         []string          `json:"locations"`
 	HTTPUser          string            `json:"http_user"`
 	HTTPPwd           string            `json:"http_pwd"`
 	HostHeaderRewrite string            `json:"host_header_rewrite"`
