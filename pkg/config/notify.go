@@ -32,3 +32,15 @@ type DingTalkConfig struct {
 	Secret  string `json:"secret"`
 	IsAtAll bool   `json:"is_at_all"`
 }
+
+// WxWorkConfig wxwork configuration
+type WxWorkConfig struct {
+	CorpID       string   `json:"corp_id"`
+	CorpSecret   string   `json:"corp_secret"`
+	AgentID      int64    `json:"agent_id"`
+	ToUser       []string `json:"to_user"`
+	ToParty      []string `json:"to_party"`
+	ToTag        []string `json:"to_tag"`
+	FilterRegExp string   `json:"filter_regexp"`
+	AdminURL     string   `json:"admin_url"`
+}

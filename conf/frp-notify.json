@@ -18,6 +18,18 @@
         "secret": "SEC97d8a209f9ddda25b89d63d82a0b2ad4065504cbe4bc043719fbb1a0000000",
         "is_at_all": true
       }
+    },
+    {
+      "name": "wxwork",
+      "config": {
+        "corp_id": "ww123456789",
+        "corp_secret": "UK__xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "agent_id": 12345678,
+        "to_user": [],
+        "to_party": [],
+        "to_tag": [],
+        "filter_regexp": ".*"
+      }
     }
   ]
 }
