@@ -34,15 +34,15 @@ func Test_parseAndVerifyConfig(t *testing.T) {
 			"normal",
 			args{
 				cfg: map[string]interface{}{
-					"corp_id":     "CorpId",
+					"corp_id":     "CorpID",
 					"corp_secret": "CorpSecret",
 					"agent_id":    1234567,
 				},
 			},
 			config.WxWorkConfig{
-				CorpId:       "CorpId",
+				CorpID:       "CorpID",
 				CorpSecret:   "CorpSecret",
-				AgentId:      int64(1234567),
+				AgentID:      int64(1234567),
 				ToUser:       []string{"@all"},
 				FilterRegExp: ".*",
 			},

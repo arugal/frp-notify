@@ -35,12 +35,12 @@ type DingTalkConfig struct {
 
 // WxWorkConfig wxwork configuration
 type WxWorkConfig struct {
-	CorpId       string   `json:"corp_id"`
+	CorpID       string   `json:"corp_id"`
 	CorpSecret   string   `json:"corp_secret"`
-	AgentId      int64    `json:"agent_id"`
+	AgentID      int64    `json:"agent_id"`
 	ToUser       []string `json:"to_user"`
 	ToParty      []string `json:"to_party"`
 	ToTag        []string `json:"to_tag"`
 	FilterRegExp string   `json:"filter_regexp"`
-	AdminUrl     string   `json:"admin_url"`
+	AdminURL     string   `json:"admin_url"`
 }

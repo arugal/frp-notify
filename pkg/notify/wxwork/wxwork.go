@@ -52,13 +52,13 @@ func parseAndVerifyConfig(cfg map[string]interface{}) (config config.WxWorkConfi
 		return
 	}
 
-	if config.CorpId == "" {
+	if config.CorpID == "" {
 		return config, fmt.Errorf("miss corp_id")
 	}
 	if config.CorpSecret == "" {
 		return config, fmt.Errorf("miss corp_secret")
 	}
-	if config.AgentId == 0 {
+	if config.AgentID == 0 {
 		return config, fmt.Errorf("miss agent_id")
 	}
 
@@ -79,9 +79,9 @@ func wxworkNotifyBuilder(cfg map[string]interface{}) (notify.Notify, error) {
 		return nil, err
 	}
 
-	client := workwx.New(wxworkdConfig.CorpId)
+	client := workwx.New(wxworkdConfig.CorpID)
 
-	app := client.WithApp(wxworkdConfig.CorpSecret, wxworkdConfig.AgentId)
+	app := client.WithApp(wxworkdConfig.CorpSecret, wxworkdConfig.AgentID)
 	app.SpawnJSAPITicketRefresher()
 
 	return &wxworkNotify{
@@ -104,7 +104,7 @@ func (wx *wxworkNotify) SendMessage(title string, message string) {
 	}
 
 	if filterRegexp.MatchString(message) {
-		err = wx.app.SendTextCardMessage(&toWho, title, message, wx.cfg.AdminUrl, "后台详情", false)
+		err = wx.app.SendTextCardMessage(&toWho, title, message, wx.cfg.AdminURL, "后台详情", false)
 
 		if err != nil {
 			log.Errorf("send message to wxwork error, err: %s", err)
