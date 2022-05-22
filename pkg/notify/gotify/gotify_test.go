@@ -34,15 +34,25 @@ func Test_parseAndVerifyConfig(t *testing.T) {
 			"normal",
 			args{
 				cfg: map[string]interface{}{
-					"server_addr": "addr",
-					"app_token":   "token",
+					"server_proto": "proto",
+					"server_addr":  "addr",
+					"app_token":    "token",
 				},
 			},
 			config.GotifyConfig{
-				ServerAddr: "addr",
-				AppToken:   "token",
+				ServerProto: "proto",
+				ServerAddr:  "addr",
+				AppToken:    "token",
 			},
 			false,
+		},
+		{
+			"miss server_proto",
+			args{
+				cfg: map[string]interface{}{},
+			},
+			config.GotifyConfig{},
+			true,
 		},
 		{
 			"miss server_addr",

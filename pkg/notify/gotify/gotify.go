@@ -48,9 +48,10 @@ func (g *gotifyNotify) SendMessage(title string, message string) {
 
 	_, err := g.client.R().
 		SetFormData(format).
-		Post(fmt.Sprintf("http://%s/message?token=%s", g.cfg.ServerAddr, g.cfg.AppToken))
+		Post(fmt.Sprintf("%s://%s/message?token=%s", g.cfg.ServerProto, g.cfg.ServerAddr, g.cfg.AppToken))
 	if err != nil {
-		log.Errorf("send message to gotify error, err: %s serverAddr: %s, token: %s", err, g.cfg.ServerAddr, g.cfg.AppToken)
+		log.Errorf("send message to gotify error, err: %s serverProto: %s, serverAddr: %s, token: %s", err,
+			g.cfg.ServerProto, g.cfg.ServerAddr, g.cfg.AppToken)
 	}
 }
 

@@ -22,8 +22,9 @@ type NotifyConfig struct {
 
 // GotifyConfig gotify configuration
 type GotifyConfig struct {
-	ServerAddr string `json:"server_addr"`
-	AppToken   string `json:"app_token"`
+	ServerProto string `json:"server_proto"`
+	ServerAddr  string `json:"server_addr"`
+	AppToken    string `json:"app_token"`
 }
 
 // DingTalkConfig dingTalk configuration
