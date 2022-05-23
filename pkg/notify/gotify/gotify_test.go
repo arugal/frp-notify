@@ -34,22 +34,36 @@ func Test_parseAndVerifyConfig(t *testing.T) {
 			"normal",
 			args{
 				cfg: map[string]interface{}{
-					"server_addr": "addr",
-					"app_token":   "token",
+					"server_proto": "proto",
+					"server_addr":  "addr",
+					"app_token":    "token",
 				},
 			},
 			config.GotifyConfig{
-				ServerAddr: "addr",
-				AppToken:   "token",
+				ServerProto: "proto",
+				ServerAddr:  "addr",
+				AppToken:    "token",
 			},
 			false,
+		},
+		{
+			"miss server_proto",
+			args{
+				cfg: map[string]interface{}{},
+			},
+			config.GotifyConfig{
+				ServerProto: "http",
+			},
+			true,
 		},
 		{
 			"miss server_addr",
 			args{
 				cfg: map[string]interface{}{},
 			},
-			config.GotifyConfig{},
+			config.GotifyConfig{
+				ServerProto: "http",
+			},
 			true,
 		},
 		{
@@ -60,7 +74,8 @@ func Test_parseAndVerifyConfig(t *testing.T) {
 				},
 			},
 			config.GotifyConfig{
-				ServerAddr: "addr",
+				ServerProto: "http",
+				ServerAddr:  "addr",
 			},
 			true,
 		},

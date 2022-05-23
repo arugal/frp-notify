@@ -137,6 +137,7 @@ ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
     {
       "name": "gotify",                                                                // 固定配置
       "config": {
+        "server_proto": "http",                                                        // gotify-server 上报协议
         "server_addr": "127.0.0.1:40080",                                              // gotify-server 服务地址
         "app_token": "token"                                                           // gotify-server 配置的 app token
       }
