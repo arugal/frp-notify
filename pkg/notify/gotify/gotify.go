@@ -66,6 +66,10 @@ func parseAndVerifyConfig(cfg map[string]interface{}) (config config.GotifyConfi
 	if err != nil {
 		return
 	}
+	if config.ServerProto == "" {
+		config.ServerProto = "http"
+		log.Debugf("use default http protocol")
+	}
 	if config.ServerAddr == "" {
 		return config, fmt.Errorf("miss server_addr")
 	}

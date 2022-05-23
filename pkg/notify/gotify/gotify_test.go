@@ -51,7 +51,9 @@ func Test_parseAndVerifyConfig(t *testing.T) {
 			args{
 				cfg: map[string]interface{}{},
 			},
-			config.GotifyConfig{},
+			config.GotifyConfig{
+				ServerProto: "http",
+			},
 			true,
 		},
 		{
@@ -59,7 +61,9 @@ func Test_parseAndVerifyConfig(t *testing.T) {
 			args{
 				cfg: map[string]interface{}{},
 			},
-			config.GotifyConfig{},
+			config.GotifyConfig{
+				ServerProto: "http",
+			},
 			true,
 		},
 		{
@@ -70,7 +74,8 @@ func Test_parseAndVerifyConfig(t *testing.T) {
 				},
 			},
 			config.GotifyConfig{
-				ServerAddr: "addr",
+				ServerProto: "http",
+				ServerAddr:  "addr",
 			},
 			true,
 		},
