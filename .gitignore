@@ -17,3 +17,7 @@
 # vendor/
 
 release/*
+
+# IDE
+.idea
+.vscode
