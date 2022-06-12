@@ -17,33 +17,33 @@ name: Release
 on:
   push:
     tags:
-      - '*'
-
-env:
-  version: ${{ github.ref }}
+      - 'v*'
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.14
+      - name: Set up Go 1.17
         uses: actions/setup-go@v1
         with:
-          go-version: 1.14
+          go-version: 1.17
         id: go
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: Build Artifacts
-        run: export version=${{ github.ref }} && bash release.sh
-      - name: Release
+        run: export version=${{ steps.get_version.outputs.VERSION }} && bash hack/release.sh
+      - name: Create Release
         uses: actions/create-release@v1
         id: create_release
         with:
           draft: true
           prerelease: true
-          release_name: ${{ github.ref }}
-          tag_name: ${{ github.ref }}
+          release_name: ${{ steps.get_version.outputs.VERSION }}
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
           body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -53,8 +53,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release/frp-notify-${{ github.ref }}-linux-amd64.tar.gz
-          asset_name: frp-notify-${{ github.ref }}-linux-amd64.tar.gz
+          asset_path: ./release/frp-notify-${{ steps.get_version.outputs.VERSION }}-linux-amd64.tar.gz
+          asset_name: frp-notify-${{ steps.get_version.outputs.VERSION }}-linux-amd64.tar.gz
           asset_content_type: application/gzip
       - name: Upload Windows Artifact
         uses: actions/upload-release-asset@v1
@@ -62,8 +62,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release/frp-notify-${{ github.ref }}-windows-amd64.tar.gz
-          asset_name: frp-notify-${{ github.ref }}-windows-amd64.tar.gz
+          asset_path: ./release/frp-notify-${{ steps.get_version.outputs.VERSION }}-windows-amd64.tar.gz
+          asset_name: frp-notify-${{ steps.get_version.outputs.VERSION }}-windows-amd64.tar.gz
           asset_content_type: application/gzip
       - name: Upload Darwin Artifact
         uses: actions/upload-release-asset@v1
@@ -71,6 +71,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release/frp-notify-${{ github.ref }}-darwin-amd64.tar.gz
-          asset_name: frp-notify-${{ github.ref }}-darwin-amd64.tar.gz
+          asset_path: ./release/frp-notify-${{ steps.get_version.outputs.VERSION }}-darwin-amd64.tar.gz
+          asset_name: frp-notify-${{ steps.get_version.outputs.VERSION }}-darwin-amd64.tar.gz
           asset_content_type: application/gzip
