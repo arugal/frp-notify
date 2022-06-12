@@ -35,8 +35,8 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
       - name: Build Artifacts
-        run: bash release.sh
-      - name: release
+        run: export version=${{ github.ref }} && bash release.sh
+      - name: Release
         uses: actions/create-release@v1
         id: create_release
         with:
@@ -47,7 +47,7 @@ jobs:
           body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ github.token }}
-      - name: upload linux artifact
+      - name: Upload Linux Artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -56,7 +56,7 @@ jobs:
           asset_path: ./release/frp-notify-${{ github.ref }}-linux-amd64.tar.gz
           asset_name: frp-notify-${{ github.ref }}-linux-amd64.tar.gz
           asset_content_type: application/gzip
-      - name: upload windows artifact
+      - name: Upload Windows Artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -65,7 +65,7 @@ jobs:
           asset_path: ./release/frp-notify-${{ github.ref }}-windows-amd64.tar.gz
           asset_name: frp-notify-${{ github.ref }}-windows-amd64.tar.gz
           asset_content_type: application/gzip
-      - name: upload darwin artifact
+      - name: Upload Darwin Artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
