@@ -40,3 +40,5 @@ jobs:
         run: make test
       - name: Build
         run: make build
+      - name: Build Artifacts
+        run: /bin/bash -c release.sh
