@@ -14,7 +14,9 @@
 
 #!/usr/bin/env bash
 
-version ?= latest
+if test -z "$version"; then
+version=latest
+fi
 
 # cross_compiles
 make build-all VERSION=${version}
