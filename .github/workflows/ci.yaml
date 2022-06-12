@@ -41,4 +41,4 @@ jobs:
       - name: Build
         run: make build
       - name: Build Artifacts
-        run: /bin/bash -c release.sh
+        run: /bin/bash -c "release.sh"
