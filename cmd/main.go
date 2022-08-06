@@ -15,6 +15,11 @@
 package main
 
 import (
+	"net/http"
+	"os"
+	"strconv"
+	"time"
+
 	"github/arugal/frp-notify/pkg/cli/interceptor"
 	"github/arugal/frp-notify/pkg/cmd"
 	"github/arugal/frp-notify/pkg/config"
@@ -24,13 +29,10 @@ import (
 	"github/arugal/frp-notify/pkg/logger"
 	_ "github/arugal/frp-notify/pkg/notify/dingtalk"
 	_ "github/arugal/frp-notify/pkg/notify/gotify"
+	_ "github/arugal/frp-notify/pkg/notify/lark"
 	_ "github/arugal/frp-notify/pkg/notify/log"
 	_ "github/arugal/frp-notify/pkg/notify/wxwork"
 	"github/arugal/frp-notify/pkg/version"
-	"net/http"
-	"os"
-	"strconv"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
