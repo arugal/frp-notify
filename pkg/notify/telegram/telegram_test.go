@@ -76,7 +76,7 @@ func Test_SendMessage(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			notify, err := NewTelegramNotify(tt.args.cfg)
+			notify, err := telegramNotifyBuilder(tt.args.cfg)
 			if err != nil {
 				return
 			}

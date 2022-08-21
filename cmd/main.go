@@ -25,6 +25,7 @@ import (
 	_ "github/arugal/frp-notify/pkg/notify/dingtalk"
 	_ "github/arugal/frp-notify/pkg/notify/gotify"
 	_ "github/arugal/frp-notify/pkg/notify/log"
+	_ "github/arugal/frp-notify/pkg/notify/telegram"
 	_ "github/arugal/frp-notify/pkg/notify/wxwork"
 	"github/arugal/frp-notify/pkg/version"
 	"net/http"
