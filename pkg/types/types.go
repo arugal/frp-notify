@@ -18,7 +18,9 @@ const (
 	APIVersion = "0.1.0"
 
 	OpLogin       = "Login"
+	OpExit        = "Exit"
 	OpNewProxy    = "NewProxy"
+	OpCloseProxy  = "CloseProxy"
 	OpPing        = "Ping"
 	OpNewWorkConn = "NewWorkConn"
 	OpNewUserConn = "NewUserConn"
@@ -54,7 +56,17 @@ type Login struct {
 	PrivilegeKey string            `json:"privilege_key"`
 	RunID        string            `json:"run_id"`
 	PoolCount    int               `json:"pool_count"`
+	RemoteIP     string            `json:"client_address,omitempty"`
 	Metas        map[string]string `json:"metas,omitempty"`
+}
+
+type Exit struct {
+	Version   string            `json:"version"`
+	Hostname  string            `json:"hostname"`
+	User      string            `json:"user"`
+	Timestamp int64             `json:"timestamp"`
+	RemoteIP  string            `json:"client_address,omitempty"`
+	Metas     map[string]string `json:"metas,omitempty"`
 }
 
 type Proxy struct {
@@ -96,4 +108,15 @@ type UserConn struct {
 	ProxyType  string `json:"proxy_type"`
 	RemoteAddr string `json:"remote_addr"`
 	RemoteIP   string `json:"-"`
+}
+
+type Ping struct {
+	User         User   `json:"user"`
+	Timestamp    string `json:"timestamp"`
+	PrivilegeKey string `json:"privilege_key"`
+}
+
+type CloseProxy struct {
+	User      User   `json:"user"`
+	ProxyName string `json:"proxy_name"`
 }

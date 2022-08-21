@@ -21,6 +21,8 @@ import (
 	"github/arugal/frp-notify/pkg/logger"
 	"github/arugal/frp-notify/pkg/notify"
 	"github/arugal/frp-notify/pkg/types"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -71,7 +73,7 @@ func WithAddressService(enable bool, newServiceFunc func() ip.AddressService) No
 
 func (n *notifyHandler) Op(op string) bool {
 	switch op {
-	case types.OpLogin, types.OpNewUserConn, types.OpNewWorkConn, types.OpNewProxy:
+	case types.OpLogin, types.OpNewUserConn, types.OpNewWorkConn, types.OpNewProxy, types.OpPing, types.OpCloseProxy, types.OpExit:
 		return true
 	default:
 		return false
@@ -112,8 +114,14 @@ func (n notifyHandler) doNotify() {
 			switch request.Op {
 			case types.OpLogin:
 				login := request.Body.(*types.Login)
-				message = fmt.Sprintf("Version: %v, HostName: %v, Os: %v, Arch: %v",
-					login.Version, login.Hostname, login.OS, login.Arch)
+				title = fmt.Sprintf("%s online", login.Metas["hostname"])
+				message = fmt.Sprintf("Version: %v\nTime: %v\nClient IP: %v",
+					login.Version, convertTimestampToDatetime(login.Timestamp), login.RemoteIP)
+			case types.OpExit:
+				exitMsg := request.Body.(*types.Exit)
+				title = fmt.Sprintf("%s offline", exitMsg.Metas["hostname"])
+				message = fmt.Sprintf("Version: %v\nTime: %v\nClient IP: %v",
+					exitMsg.Version, convertTimestampToDatetime(exitMsg.Timestamp), exitMsg.RemoteIP)
 			case types.OpNewProxy:
 				proxy := request.Body.(*types.Proxy)
 				message = fmt.Sprintf("ProxyName: %v, ProxyType: %v, RemotePort: %v",
@@ -144,6 +152,15 @@ func (n notifyHandler) doNotify() {
 				} else {
 					message = fmt.Sprintf("ProxyName: %s, ProxyType: %v, RemoteIP: %s", proxyName, userConn.ProxyType, userConn.RemoteIP)
 				}
+
+			case types.OpPing:
+				ping := request.Body.(*types.Ping)
+				message = fmt.Sprintf("ping %s %s", ping.PrivilegeKey, ping.User.User)
+
+			case types.OpCloseProxy:
+				proxy := request.Body.(*types.CloseProxy)
+				message = fmt.Sprintf("Closed proxy %s", proxy.ProxyName)
+
 			}
 			if !skipNotify {
 				notify.SendMessage(title, message)
@@ -153,4 +170,16 @@ func (n notifyHandler) doNotify() {
 			log.Debugln("clean user conn cache.")
 		}
 	}
+}
+
+func convertTimestampToDatetime(timestamp int64) string {
+	loc := time.UTC
+	if name, ok := os.LookupEnv("TZ"); ok {
+		if name != "" {
+			loc, _ = time.LoadLocation("Asia/Ho_Chi_Minh")
+		}
+	}
+	ti, _ := strconv.ParseInt(strconv.FormatInt(timestamp, 10), 10, 64)
+	tm := time.Unix(ti, 0)
+	return tm.In(loc).Format("Jan 2, 2006 at 3:04 PM")
 }
