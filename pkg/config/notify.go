@@ -45,3 +45,8 @@ type WxWorkConfig struct {
 	FilterRegExp string   `json:"filter_regexp"`
 	AdminURL     string   `json:"admin_url"`
 }
+
+type TelegramConfig struct {
+	Token   string `json:"token"`
+	GroupId int64  `json:"groupId"`
+}
