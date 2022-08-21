@@ -48,5 +48,5 @@ type WxWorkConfig struct {
 
 type TelegramConfig struct {
 	Token   string `json:"token"`
-	GroupId int64  `json:"groupId"`
+	GroupID int64  `json:"groupId"`
 }

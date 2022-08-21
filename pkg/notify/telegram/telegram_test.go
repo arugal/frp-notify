@@ -26,7 +26,7 @@ func Test_parseAndVerifyConfig(t *testing.T) {
 			},
 			config.TelegramConfig{
 				Token:   "token",
-				GroupId: 10,
+				GroupID: 10,
 			},
 			false,
 		},
