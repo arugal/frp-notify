@@ -3,8 +3,10 @@ package telegram
 import (
 	"encoding/json"
 	"fmt"
+
 	telegramLib "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirupsen/logrus"
+
 	"github/arugal/frp-notify/pkg/config"
 	"github/arugal/frp-notify/pkg/logger"
 	"github/arugal/frp-notify/pkg/notify"
