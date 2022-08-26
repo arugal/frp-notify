@@ -167,12 +167,18 @@ func parserContent(req *types.Request) error {
 	switch req.Op {
 	case types.OpLogin:
 		body = &types.Login{}
+	case types.OpExit:
+		body = &types.Exit{}
 	case types.OpNewUserConn:
 		body = &types.UserConn{}
 	case types.OpNewProxy:
 		body = &types.Proxy{}
 	case types.OpNewWorkConn:
 		body = &types.WorkConn{}
+	case types.OpCloseProxy:
+		body = &types.CloseProxy{}
+	case types.OpPing:
+		body = &types.Ping{}
 	default:
 		return nil
 	}

@@ -16,12 +16,17 @@ package handler
 
 import (
 	"fmt"
+	"os"
+	"strconv"
+	"time"
+
+	telegramLib "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
 	"github/arugal/frp-notify/pkg/controller"
 	"github/arugal/frp-notify/pkg/ip"
 	"github/arugal/frp-notify/pkg/logger"
 	"github/arugal/frp-notify/pkg/notify"
 	"github/arugal/frp-notify/pkg/types"
-	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -71,7 +76,7 @@ func WithAddressService(enable bool, newServiceFunc func() ip.AddressService) No
 
 func (n *notifyHandler) Op(op string) bool {
 	switch op {
-	case types.OpLogin, types.OpNewUserConn, types.OpNewWorkConn, types.OpNewProxy:
+	case types.OpLogin, types.OpNewUserConn, types.OpNewWorkConn, types.OpNewProxy, types.OpPing, types.OpCloseProxy, types.OpExit:
 		return true
 	default:
 		return false
@@ -112,12 +117,18 @@ func (n notifyHandler) doNotify() {
 			switch request.Op {
 			case types.OpLogin:
 				login := request.Body.(*types.Login)
-				message = fmt.Sprintf("Version: %v, HostName: %v, Os: %v, Arch: %v",
-					login.Version, login.Hostname, login.OS, login.Arch)
+				title = fmt.Sprintf("%s online", login.Metas["hostname"])
+				message = fmt.Sprintf("_Version: %v_\n_Time: %v_\n_Client IP: %v_",
+					login.Version, convertTimestampToDatetime(login.Timestamp), login.RemoteIP)
+			case types.OpExit:
+				exitMsg := request.Body.(*types.Exit)
+				title = fmt.Sprintf("%s offline", exitMsg.Metas["hostname"])
+				message = fmt.Sprintf("_Version: %v_\n_Time: %v_\n_Client IP: %v_",
+					exitMsg.Version, convertTimestampToDatetime(exitMsg.Timestamp), exitMsg.RemoteIP)
 			case types.OpNewProxy:
 				proxy := request.Body.(*types.Proxy)
 				message = fmt.Sprintf("ProxyName: %v, ProxyType: %v, RemotePort: %v",
-					proxy.ProxyName, proxy.ProxyType, proxy.RemotePort)
+					telegramLib.EscapeText(telegramLib.ModeMarkdown, proxy.ProxyName), proxy.ProxyType, proxy.RemotePort)
 			case types.OpNewWorkConn:
 				workConn := request.Body.(*types.WorkConn)
 				message = fmt.Sprintf("RunID: %v", workConn.RunID)
@@ -140,10 +151,19 @@ func (n notifyHandler) doNotify() {
 					ipCName = n.addressService.Query(userConn.RemoteIP)
 				}
 				if ipCName != "" {
-					message = fmt.Sprintf("ProxyName: %s, ProxyType: %v, RemoteIP: %s, CName: %s", proxyName, userConn.ProxyType, userConn.RemoteIP, ipCName)
+					message = fmt.Sprintf("ProxyName: %s, ProxyType: %v, RemoteIP: %s, CName: %s", telegramLib.EscapeText(telegramLib.ModeMarkdown, proxyName), userConn.ProxyType, userConn.RemoteIP, ipCName)
 				} else {
-					message = fmt.Sprintf("ProxyName: %s, ProxyType: %v, RemoteIP: %s", proxyName, userConn.ProxyType, userConn.RemoteIP)
+					message = fmt.Sprintf("ProxyName: %s, ProxyType: %v, RemoteIP: %s", telegramLib.EscapeText(telegramLib.ModeMarkdown, proxyName), userConn.ProxyType, userConn.RemoteIP)
 				}
+
+			case types.OpPing:
+				ping := request.Body.(*types.Ping)
+				message = fmt.Sprintf("ping %s %s", ping.PrivilegeKey, ping.User.User)
+
+			case types.OpCloseProxy:
+				proxy := request.Body.(*types.CloseProxy)
+				message = fmt.Sprintf("Closed proxy %s", telegramLib.EscapeText(telegramLib.ModeMarkdown, proxy.ProxyName))
+
 			}
 			if !skipNotify {
 				notify.SendMessage(title, message)
@@ -153,4 +173,16 @@ func (n notifyHandler) doNotify() {
 			log.Debugln("clean user conn cache.")
 		}
 	}
+}
+
+func convertTimestampToDatetime(timestamp int64) string {
+	loc := time.UTC
+	if name, ok := os.LookupEnv("TZ"); ok {
+		if name != "" {
+			loc, _ = time.LoadLocation("Asia/Ho_Chi_Minh")
+		}
+	}
+	ti, _ := strconv.ParseInt(strconv.FormatInt(timestamp, 10), 10, 64)
+	tm := time.Unix(ti, 0)
+	return tm.In(loc).Format("Jan 2, 2006 at 3:04 PM")
 }

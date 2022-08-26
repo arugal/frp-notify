@@ -41,7 +41,7 @@ func Test_notifyHandler_Op(t *testing.T) {
 				},
 				{
 					op:   types.OpPing,
-					want: false,
+					want: true,
 				},
 				{
 					op:   types.OpNewWorkConn,
@@ -49,6 +49,10 @@ func Test_notifyHandler_Op(t *testing.T) {
 				},
 				{
 					op:   types.OpNewUserConn,
+					want: true,
+				},
+				{
+					op:   types.OpCloseProxy,
 					want: true,
 				},
 			},

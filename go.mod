@@ -6,6 +6,7 @@ require (
 	github.com/JetBlink/dingtalk-notify-go-sdk v0.0.0-20191112085213-0dc836cea13e
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/go-resty/resty/v2 v2.2.0
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/sirupsen/logrus v1.5.0
 	github.com/urfave/cli v1.22.4
 	github.com/xen0n/go-workwx v1.0.1
