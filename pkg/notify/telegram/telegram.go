@@ -69,10 +69,12 @@ func telegramNotifyBuilder(cfg map[string]interface{}) (notify.Notify, error) {
 }
 
 func (t *telegramNotify) SendMessage(title string, message string) {
-	msg := telegramLib.NewMessage(t.cfg.GroupID, fmt.Sprintf("*FRP Server* said: %s \n_%s_", title, message))
+	rawText := fmt.Sprintf("*FRP Server* said: %s \n%s", title, message)
+	msg := telegramLib.NewMessage(t.cfg.GroupID, rawText)
 	msg.ParseMode = telegramLib.ModeMarkdown
 	_, err := t.api.Send(msg)
 	if err != nil {
 		log.Errorf("send message to telegram error, err: %s", err)
+		log.Errorf("Msg: " + rawText)
 	}
 }

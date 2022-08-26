@@ -16,14 +16,17 @@ package handler
 
 import (
 	"fmt"
+	"os"
+	"strconv"
+	"time"
+
+	telegramLib "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
 	"github/arugal/frp-notify/pkg/controller"
 	"github/arugal/frp-notify/pkg/ip"
 	"github/arugal/frp-notify/pkg/logger"
 	"github/arugal/frp-notify/pkg/notify"
 	"github/arugal/frp-notify/pkg/types"
-	"os"
-	"strconv"
-	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -115,17 +118,17 @@ func (n notifyHandler) doNotify() {
 			case types.OpLogin:
 				login := request.Body.(*types.Login)
 				title = fmt.Sprintf("%s online", login.Metas["hostname"])
-				message = fmt.Sprintf("Version: %v\nTime: %v\nClient IP: %v",
+				message = fmt.Sprintf("_Version: %v_\n_Time: %v_\n_Client IP: %v_",
 					login.Version, convertTimestampToDatetime(login.Timestamp), login.RemoteIP)
 			case types.OpExit:
 				exitMsg := request.Body.(*types.Exit)
 				title = fmt.Sprintf("%s offline", exitMsg.Metas["hostname"])
-				message = fmt.Sprintf("Version: %v\nTime: %v\nClient IP: %v",
+				message = fmt.Sprintf("_Version: %v_\n_Time: %v_\n_Client IP: %v_",
 					exitMsg.Version, convertTimestampToDatetime(exitMsg.Timestamp), exitMsg.RemoteIP)
 			case types.OpNewProxy:
 				proxy := request.Body.(*types.Proxy)
 				message = fmt.Sprintf("ProxyName: %v, ProxyType: %v, RemotePort: %v",
-					proxy.ProxyName, proxy.ProxyType, proxy.RemotePort)
+					telegramLib.EscapeText(telegramLib.ModeMarkdown, proxy.ProxyName), proxy.ProxyType, proxy.RemotePort)
 			case types.OpNewWorkConn:
 				workConn := request.Body.(*types.WorkConn)
 				message = fmt.Sprintf("RunID: %v", workConn.RunID)
@@ -148,9 +151,9 @@ func (n notifyHandler) doNotify() {
 					ipCName = n.addressService.Query(userConn.RemoteIP)
 				}
 				if ipCName != "" {
-					message = fmt.Sprintf("ProxyName: %s, ProxyType: %v, RemoteIP: %s, CName: %s", proxyName, userConn.ProxyType, userConn.RemoteIP, ipCName)
+					message = fmt.Sprintf("ProxyName: %s, ProxyType: %v, RemoteIP: %s, CName: %s", telegramLib.EscapeText(telegramLib.ModeMarkdown, proxyName), userConn.ProxyType, userConn.RemoteIP, ipCName)
 				} else {
-					message = fmt.Sprintf("ProxyName: %s, ProxyType: %v, RemoteIP: %s", proxyName, userConn.ProxyType, userConn.RemoteIP)
+					message = fmt.Sprintf("ProxyName: %s, ProxyType: %v, RemoteIP: %s", telegramLib.EscapeText(telegramLib.ModeMarkdown, proxyName), userConn.ProxyType, userConn.RemoteIP)
 				}
 
 			case types.OpPing:
@@ -159,7 +162,7 @@ func (n notifyHandler) doNotify() {
 
 			case types.OpCloseProxy:
 				proxy := request.Body.(*types.CloseProxy)
-				message = fmt.Sprintf("Closed proxy %s", proxy.ProxyName)
+				message = fmt.Sprintf("Closed proxy %s", telegramLib.EscapeText(telegramLib.ModeMarkdown, proxy.ProxyName))
 
 			}
 			if !skipNotify {

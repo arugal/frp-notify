@@ -15,7 +15,7 @@
 package types
 
 const (
-	APIVersion = "0.1.0"
+	APIVersion = "0.1.1"
 
 	OpLogin       = "Login"
 	OpExit        = "Exit"
