@@ -45,3 +45,9 @@ type WxWorkConfig struct {
 	FilterRegExp string   `json:"filter_regexp"`
 	AdminURL     string   `json:"admin_url"`
 }
+
+type LarkConfig struct {
+	WebhookURL string   `json:"webhook_url"`
+	Secret     string   `json:"secret"`
+	AtUsers    []string `json:"at_users"`
+}
