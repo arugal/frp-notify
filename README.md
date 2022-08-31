@@ -48,7 +48,7 @@ ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
 
 先判断白名单，后判断黑名单。仅对 `NewUserConn` 有效 (**黑白名单配置支持热加载**)。
 
-```
+```json
 {
   "blacklist": [                                   // 黑名单
     "127.0.0.1"
@@ -70,7 +70,7 @@ ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
 
 将消息打印到控制台，用于调试。
 
-```
+```json
 {
   "notify_plugins": [
     {
@@ -85,7 +85,7 @@ ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
 
 将消息发送到钉钉。
 
-```
+```json
 {
   "notify_plugins": [
     {
@@ -106,7 +106,7 @@ ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
 
 将消息发送到企业微信。
 
-```
+```json
 {
   "notify_plugins": [
     {
@@ -127,11 +127,30 @@ ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
 
 ![实例截图](doc/images/wxwork.png)
 
+#### 飞书
+
+将消息发送到飞书
+
+```json
+{
+  "notify_plugins": [
+    {
+      "name": "lark",
+      "config": {
+        "webhook_url": "",
+        "secret": "",
+        "at_users": []
+      }
+    }
+  ]
+}
+```
+
 #### gotify
 
 将消息发送到 [gotify-server](https://github.com/gotify/server)。
 
-```
+```json
 {
   "notify_plugins": [
     {
