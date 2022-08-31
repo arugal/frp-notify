@@ -64,6 +64,13 @@ ops = Login,NewProxy,NewWorkConn,NewUserConn       // 通知的操作
 
 ### 通知插件配置
 
+插件列表：
+1. [log](#log)
+1. [dingTalk](#dingtalk)
+1. [wxwork](#wxwork)
+1. [飞书](#飞书)
+1. [gotify](#gotify)
+
 在 `frp-notify.json` 文件中按需配置通知插件，支持同时配置多个插件。
 
 #### log
