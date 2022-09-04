@@ -12,15 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.17 AS builder
+FROM golang:1.18-alpine AS builder
 
 ENV GOPROXY="https://goproxy.cn"
 
 ADD . /frp-notify
 WORKDIR /frp-notify
-RUN make deps && make build
+RUN go mod tidy && \
+    go build -o bin/frp-notify cmd/main.go
 
 FROM alpine:latest
 
 COPY --from=builder /frp-notify/bin/frp-notify .
 ENTRYPOINT ["/frp-notify"]
+
+CMD [ "start" ]

@@ -1,6 +1,6 @@
 module github/arugal/frp-notify
 
-go 1.17
+go 1.18
 
 require (
 	github.com/JetBlink/dingtalk-notify-go-sdk v0.0.0-20191112085213-0dc836cea13e
