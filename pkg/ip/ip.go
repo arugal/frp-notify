@@ -15,11 +15,10 @@
 package ip
 
 import (
-	"fmt"
-	"github/arugal/frp-notify/pkg/logger"
-	"strings"
+	"encoding/json"
 
-	"github.com/axgle/mahonia"
+	"github/arugal/frp-notify/pkg/logger"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
 )
@@ -32,7 +31,7 @@ func init() {
 	log = logger.Log
 }
 
-// 查询 ip 实际地址
+// AddressQuery 查询 ip 实际地址
 type AddressQuery func(ip string) string
 
 func NewDefaultAddressService() AddressService {
@@ -53,36 +52,38 @@ type defaultAddressService struct {
 
 func (s *defaultAddressService) Query(ip string) string {
 	req := s.client.R()
-	req.Header.Add("Content-Type", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.75 Safari/537.36")
+	req.Header.Add(
+		"Content-Type",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) "+
+			"AppleWebKit/537.36 (KHTML, like Gecko) "+
+			"Chrome/112.0.0.0 Safari/537.36",
+	)
 
-	resp, err := req.Get(fmt.Sprintf("http://ip.ws.126.net/ipquery?ip=%s", ip))
+	resp, err := req.SetQueryParams(map[string]string{
+		"query":       ip,
+		"co":          "",
+		"resource_id": "6006",
+		"oe":          "utf8",
+	}).SetHeader("Accept", "application/json").Get("https://opendata.baidu.com/api.php")
 	if err != nil {
-		log.Errorf("ip query error, err: %v", err)
+		log.Errorf("ip query: get error, detail: %v", err)
 		return ""
 	}
-	result := convertToString(string(resp.Body()), "GBK", "UTF-8")
-	return provinceAndCity(result)
-}
 
-func provinceAndCity(result string) string {
-	i := strings.Index(result, "city:\"") + 6
-	result = result[i:]
-	i = strings.Index(result, "\"")
-	city := result[:i]
+	var response BaiduIPAddrResponse
+	err = json.Unmarshal(resp.Body(), &response)
+	if err != nil {
+		log.Errorf("ip query: decode error, detail: %v", err)
+		return ""
+	}
+	if response.Status != "0" {
+		log.Errorf("ip query: status error, detail: %v", response.Status)
+		return ""
+	}
 
-	i = strings.Index(result, "province:\"") + 10
-	result = result[i:]
-	i = strings.Index(result, "\"")
-	province := result[:i]
-
-	return province + city
-}
-
-func convertToString(src string, srcCode string, tagCode string) string {
-	srcCoder := mahonia.NewDecoder(srcCode)
-	srcResult := srcCoder.ConvertString(src)
-	tagCoder := mahonia.NewDecoder(tagCode)
-	_, cdata, _ := tagCoder.Translate([]byte(srcResult), true)
-	result := string(cdata)
-	return result
+	if len(response.Data) == 0 {
+		log.Errorf("ip query: empty data, detail: %v", response.Data)
+		return ""
+	}
+	return response.Data[0].Location
 }
