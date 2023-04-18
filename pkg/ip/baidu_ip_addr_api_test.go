@@ -42,9 +42,9 @@ func TestBaiduIpAddrUnmarshal(t *testing.T) {
 	}
 
 	fmt.Printf("%+v\n", response)
-	t.Logf("ip address: %s", response.Data[0].OrigIpQuery)
+	t.Logf("ip address: %s", response.Data[0].OrigIPQuery)
 	t.Logf("ip location: %s", response.Data[0].Location)
-	assert.Equal(t, "223.239.128.138", response.Data[0].OrigIpQuery)
+	assert.Equal(t, "223.239.128.138", response.Data[0].OrigIPQuery)
 	assert.Equal(t, "India", response.Data[0].Location)
 }
 

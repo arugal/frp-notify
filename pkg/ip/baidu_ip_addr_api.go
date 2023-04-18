@@ -14,8 +14,8 @@ type BaiduIPAddrData struct {
 	DispType         int    `json:"disp_type,omitempty"`
 	FetchKey         string `json:"fetchkey,omitempty"`
 	Location         string `json:"location"`
-	OrigIp           string `json:"origip,omitempty"`
-	OrigIpQuery      string `json:"origipquery,omitempty"`
+	OrigIP           string `json:"origip,omitempty"`
+	OrigIPQuery      string `json:"origipquery,omitempty"`
 	ResourceID       string `json:"resourceid,omitempty"`
 	RoleID           int    `json:"role_id,omitempty"`
 	ShareImage       int    `json:"shareImage,omitempty"`
