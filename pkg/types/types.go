@@ -19,6 +19,7 @@ const (
 
 	OpLogin       = "Login"
 	OpNewProxy    = "NewProxy"
+	OpCloseProxy  = "CloseProxy"
 	OpPing        = "Ping"
 	OpNewWorkConn = "NewWorkConn"
 	OpNewUserConn = "NewUserConn"
@@ -81,6 +82,11 @@ type Proxy struct {
 	Multiplexer string `json:"multiplexer"` // tcpmux only
 
 	Metas map[string]string `json:"metas,omitempty"`
+}
+
+type CloseProxy struct {
+	User      User   `json:"user"`
+	ProxyName string `json:"proxy_name"`
 }
 
 type WorkConn struct {
