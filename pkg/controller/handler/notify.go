@@ -118,6 +118,9 @@ func (n notifyHandler) doNotify() {
 				proxy := request.Body.(*types.Proxy)
 				message = fmt.Sprintf("ProxyName: %v, ProxyType: %v, RemotePort: %v",
 					proxy.ProxyName, proxy.ProxyType, proxy.RemotePort)
+			case types.OpCloseProxy:
+				closeProxy := request.Body.(*types.CloseProxy)
+				message = fmt.Sprintf("ProxyName: %v", closeProxy.ProxyName)
 			case types.OpNewWorkConn:
 				workConn := request.Body.(*types.WorkConn)
 				message = fmt.Sprintf("RunID: %v", workConn.RunID)
